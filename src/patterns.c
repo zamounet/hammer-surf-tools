@@ -647,16 +647,20 @@ bool scan_all(uint8_t *base, size_t size) {
         }
 
         if (p->hook) {
+#ifndef TEST_PATTERNS
             if (MH_CreateHook(addr, p->hook, p->out) != MH_OK) {
                 log_msg("[patterns] %s MH_CreateHook failed\n", p->name);
                 success = false;
                 continue;
             }
+#endif
         } else if (p->out) {
             *(p->out) = addr;
         }
 
+#ifndef TEST_PATTERNS
         log_msg("[patterns] %-25s\tfound @ %p\n", p->name, addr);
+#endif
     }
 
     return success;

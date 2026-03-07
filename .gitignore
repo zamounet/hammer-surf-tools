@@ -1,3 +1,5 @@
 build/
+versions/
 *.zip
 *.bak
+test-patterns.exe

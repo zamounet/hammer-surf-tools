@@ -41,9 +41,35 @@ add_library(hammer-surf-utils SHARED
   src/testincludes.c
 )
 
+add_executable(test-patterns
+  src/patterns.c
+  src/test-patterns.c
+
+  src/common.c
+  # src/wrapper.c
+  src/patterns.c
+  src/wndproc.c
+  src/hooks.c
+  src/clipper.c
+  src/contextmenu.c
+  # src/brushsync.c
+  src/rampgen.c
+  src/render.c
+  src/measure.c
+  src/anglefix.c
+  src/triggergen.c
+  src/scriptfuncs.c
+  src/hotkeys.c
+  # src/testincludes.c
+)
+
 target_include_directories(hammer-surf-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(test-patterns PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(hammer-surf-utils PRIVATE psapi minhook)
+target_link_libraries(test-patterns PRIVATE minhook)
+
+target_compile_definitions(test-patterns PRIVATE TEST_PATTERNS)
 
 target_link_options(hammer-surf-utils PRIVATE
     # -static
@@ -58,6 +84,14 @@ set_target_properties(hammer-surf-utils PROPERTIES
   SUFFIX ".dll"
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../../.."
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../../.."
+)
+
+set_target_properties(test-patterns PROPERTIES
+  # OUTPUT_NAME test-patterns
+  # PREFIX ""
+  # SUFFIX ".dll"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  # LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../../.."
 )
 
 # Build as Windows DLL (WIN32 is set when using mingw toolchain)
