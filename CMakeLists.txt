@@ -7,7 +7,7 @@ endif()
 
 project(hammer-surf-utils LANGUAGES C)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 23)
 
 add_subdirectory(extern/minhook)
 
@@ -18,20 +18,38 @@ endif()
 
 # Match compile.sh: -O2 -Wall
 set(CMAKE_C_FLAGS_RELEASE "-O2")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wdouble-promotion -Wconversion")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wshadow -Werror")
 
 add_library(hammer-surf-utils SHARED
-  dll.c
-  tier0.c
-  wrapper.c
+  src/dll.c
+  src/common.c
+  src/wrapper.c
+  src/patterns.c
+  src/wndproc.c
+  src/hooks.c
+  src/clipper.c
+  src/contextmenu.c
+  src/brushsync.c
+  src/rampgen.c
+  src/render.c
+  src/measure.c
+  src/anglefix.c
+  src/triggergen.c
+  src/scriptfuncs.c
+  src/hotkeys.c
+  src/testincludes.c
 )
 
 target_include_directories(hammer-surf-utils PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(hammer-surf-utils PRIVATE psapi minhook)
 
-# Match compile.sh: -Wl,--enable-stdcall-fixup (needed for Windows DLL exports)
-target_link_options(hammer-surf-utils PRIVATE "LINKER:--enable-stdcall-fixup")
+target_link_options(hammer-surf-utils PRIVATE
+    # -static
+    # -static-libgcc
+    # -static-libstdc++
+)
 
 # Match compile.sh: output version.dll into ../../.. (same location as script)
 set_target_properties(hammer-surf-utils PROPERTIES
