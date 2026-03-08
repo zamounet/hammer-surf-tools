@@ -8,7 +8,7 @@
 // #define RAMPGEN_DEBUG
 static const char help[] = "Expecting <direction: l/r> <degrees> <segments>\r\nExample: r 3 20";
 
-static char OrientationToAxis(FaceOrientation ori) {
+static char orientation_to_axis(FaceOrientation ori) {
     if (ori == FACE_ORIENTATION_SOUTH_WALL || ori == FACE_ORIENTATION_NORTH_WALL) {
         return 'x';
     }
@@ -18,7 +18,7 @@ static char OrientationToAxis(FaceOrientation ori) {
     return 'z';
 }
 
-static char GetRampOrientation(CMapClass *solid) {
+static char ramp_orientation(CMapClass *solid) {
     // find best surfable face
     CMapFace *best = nullptr;
     float best_normal_delta;
@@ -29,7 +29,7 @@ static char GetRampOrientation(CMapClass *solid) {
         CMapFace *face = &solid->Faces.list[i];
         float znorm = fabsf(face->plane.normal.z);
         float delta = fabsf(znorm - ideal_normal);
-        char axis = OrientationToAxis(CMapFace_GetOrientation(face));
+        char axis = orientation_to_axis(CMapFace_GetOrientation(face));
         if ((!best || delta < best_normal_delta) && axis != 'z' && znorm < SURF_NORMAL && znorm > 0.0f) {
             best = face;
             best_normal_delta = delta;
@@ -50,7 +50,8 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
         return;
     }
 
-    char axis = GetRampOrientation(solid);
+    char axis = ramp_orientation(solid);
+    assert(axis == 'x' || axis == 'y');
     if (direction == 'r') {
         degrees = -degrees;
     }
@@ -80,26 +81,23 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
 
         Vec3 size;
         BBoxSize(bbox_prev, &size); // or use the selected solid's size
-        log_msg("%g %g %g -> %g %g %g\n", (double)orig_size.x, (double)orig_size.y, (double)orig_size.z,
-                (double)size.x, (double)size.y, (double)size.z);
+        // log_msg("%g %g %g -> %g %g %g\n", (double)orig_size.x, (double)orig_size.y, (double)orig_size.z,
+                // (double)size.x, (double)size.y, (double)size.z);
         // assert((int)size.x == (int)orig_size.x && (int)size.y == (int)orig_size.y && (int)size.z == (int)orig_size.z);
 
         // move new seg
         Vec3 delta = {0.0f, 0.0f, 0.0f};
         if (axis == 'x') {
             delta.x = direction == 'l' ? size.x : -size.x;
-        } else if (axis == 'y') {
-            delta.y = size.y;
-        } else if (axis == 'z') {
-            delta.z = size.z;
-        }
+        } else {
+            delta.y = direction == 'l' ? size.y : -size.y;
+        } 
         TransMove(copy, &delta);
 #ifdef RAMPGEN_DEBUG
         Sleep(500);
 #endif
 
         // rotate new seg on axis by bottom of previous seg
-        // adjust for x/y/z
         Vec3 ref;
         if (axis == 'x') {
             ref = (Vec3){
@@ -107,27 +105,19 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
                 bbox_prev->mins.y,
                 bbox_prev->mins.z
             };
-        } else if (axis == 'y') {
+        } else {
             ref = (Vec3){
                 bbox_prev->mins.x,
-                bbox_prev->maxs.y,
+                direction == 'l' ? bbox_prev->maxs.y : bbox_prev->mins.y,
                 bbox_prev->mins.z
-            };
-        } else if (axis == 'z') {
-            ref = (Vec3){
-                bbox_prev->mins.x,
-                bbox_prev->mins.y,
-                bbox_prev->maxs.z
             };
         }
 
         Euler angles = {0.0f, 0.0f, 0.0f};
         if (axis == 'x') {
             angles.pitch = degrees;
-        } else if (axis == 'y') {
+        } else {
             angles.yaw = degrees;
-        } else if (axis == 'z') {
-            angles.roll = degrees;
         }
         TransRotate(copy, &angles, &ref);
 #ifdef RAMPGEN_DEBUG
@@ -140,10 +130,8 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
             Euler angles = {0.0f, 0.0f, 0.0f};
             if (axis == 'x') {
                 angles.pitch = -degrees;
-            } else if (axis == 'y') {
+            } else {
                 angles.yaw = -degrees;
-            } else if (axis == 'z') {
-                angles.roll = -degrees;
             }
             TransRotate(items[item_idx], &angles, &ref);
 #ifdef RAMPGEN_DEBUG
@@ -198,7 +186,7 @@ static CMapClass *get_selected_ramp() {
         return nullptr;
     }
 
-    char axis = GetRampOrientation(item);
+    char axis = ramp_orientation(item);
     if (axis == '?') {
         AfxMessageBoxF(MB_OK, "Brush must have a surfable face facing x or y direction.");
         return nullptr;
