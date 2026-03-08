@@ -44,47 +44,15 @@ static char GetRampOrientation(CMapClass *solid) {
     return '?';
 }
 
-static void rampgen(float degrees, int segments, char direction) {
+static void rampgen(CMapClass *solid, float degrees, int segments, char direction) {
     CMapDoc *doc = GetActiveMapDoc();
     if (!doc) {
         return;
     }
 
+    char axis = GetRampOrientation(solid);
     if (direction == 'r') {
         degrees = -degrees;
-    }
-
-    RefVector *selected = CMapDoc_GetSelection(doc);
-
-    // log_msg("[rampgen] %p sel len %d\n", selected, selected->length);
-
-    if (selected->length != 1) {
-        AfxMessageBoxF(MB_OK, "Selection should be exactly 1 item.");
-        return;
-    }
-
-    CMapClass *item = selected->items[0];
-    assert(item);
-
-    if (!CMapClass_IsSolid(item)) {
-        AfxMessageBoxF(MB_OK, "Selection should be a solid.");
-        return;
-    }
-
-    CMapClass *solid = item;
-
-    CMapClass *parent = solid->vtable->GetParent(solid);
-    if (parent) {
-        if (strcmp(parent->vtable->GetType(parent), "CMapWorld") != 0) {
-            AfxMessageBoxF(MB_OK, "Selection should be a world brush solid.");
-            return;
-        }
-    }
-
-    char axis = GetRampOrientation(solid);
-    if (axis == '?') {
-        AfxMessageBoxF(MB_OK, "Solid must have a surfable face facing x or y direction.");
-        return;
     }
 
     CHistory_MarkUndoPosition(GetHistory(), nullptr, "Ramp Generation", false);
@@ -207,12 +175,45 @@ static void rampgen(float degrees, int segments, char direction) {
     }
 }
 
+static CMapClass *get_selected_ramp() {
+    CMapDoc *doc = GetActiveMapDoc();
+    if (!doc) {
+        return nullptr;
+    }
+
+    RefVector *selected = CMapDoc_GetSelection(doc);
+
+    if (selected->length != 1) {
+        AfxMessageBoxF(MB_OK, "Selection should be exactly 1 item.");
+        return nullptr;
+    }
+
+    CMapClass *item = selected->items[0];
+    assert(item);
+
+    CMapClass *parent = item->vtable->GetParent(item);
+    bool is_worldbrush = parent && !strcmp(parent->vtable->GetType(parent), "CMapWorld");
+    if (!CMapClass_IsSolid(item) || !is_worldbrush) {
+        AfxMessageBoxF(MB_OK, "Selection should be a world brush.");
+        return nullptr;
+    }
+
+    char axis = GetRampOrientation(item);
+    if (axis == '?') {
+        AfxMessageBoxF(MB_OK, "Brush must have a surfable face facing x or y direction.");
+        return nullptr;
+    }
+
+    return item;
+}
+
 static CStrDlgInst dlg;
 
 #ifdef RAMPGEN_DEBUG
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 typedef struct {
+    CMapClass *ramp;
     float degrees;
     int segments;
     char direction;
@@ -220,13 +221,18 @@ typedef struct {
 
 static DWORD WINAPI hook_init_thread(LPVOID param) {
     RampGenCmd *cmd = param;
-    rampgen(cmd->degrees, cmd->segments, cmd->direction);
+    rampgen(cmd->ramp, cmd->degrees, cmd->segments, cmd->direction);
     free(cmd);
     return 0;
 }
 #endif
 
 void do_ramp_generator() {
+    CMapClass *ramp = get_selected_ramp();
+    if (!ramp) {
+        return;
+    }
+
     memset(&dlg, 0, sizeof(dlg));
     CStrDlg(&dlg, 0, nullptr, help, "Curved Ramp Generator");
 
@@ -237,12 +243,13 @@ void do_ramp_generator() {
 
         // sscanf format: a character (x/y/z) followed by two integers
         if (sscanf(dlg.str, " %c %f %d", &direction, &degrees, &segments) == 3 && segments > 0) {
+            // TODO: verify input further
 #ifdef RAMPGEN_DEBUG
-                RampGenCmd *cmd = malloc(sizeof(RampGenCmd));
-                *cmd = (RampGenCmd){degrees, segments, direction};
-                CreateThread(nullptr, 0, hook_init_thread, cmd, 0, nullptr);
+            RampGenCmd *cmd = malloc(sizeof(RampGenCmd));
+            *cmd = (RampGenCmd){ramp, degrees, segments, direction};
+            CreateThread(nullptr, 0, hook_init_thread, cmd, 0, nullptr);
 #else
-                rampgen(degrees, segments, direction);
+            rampgen(ramp, degrees, segments, direction);
 #endif
         } else {
             AfxMessageBoxF(MB_OK, help);
