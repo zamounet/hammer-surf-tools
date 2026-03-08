@@ -102,7 +102,7 @@ static Pattern_t g_patterns[] = {
             0x4D, 0x8B, 0xF0,
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&EnumChildren
+        (void **)&CMapClass_EnumChildren
     },
     { 
         "CMapDoc::UpdateAllViews",

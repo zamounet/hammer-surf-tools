@@ -84,8 +84,8 @@ typedef void (*CStrDlg_CStrDlg_t)(void *this_, DWORD dwFlags, const char *pszStr
 extern CStrDlg_CStrDlg_t CStrDlg;
 
 typedef bool (*EnumChildrenCallback)(CMapClass *ent, void *param);
-typedef bool (*EnumChildren_t)(void *this_, EnumChildrenCallback cb, void *param, const char *type);
-extern EnumChildren_t EnumChildren;
+typedef bool (*CMapClass_EnumChildren_t)(void *this_, EnumChildrenCallback cb, void *param, const char *type);
+extern CMapClass_EnumChildren_t CMapClass_EnumChildren;
 
 typedef void *(*GetHistory_t)();
 extern GetHistory_t GetHistory;

@@ -96,6 +96,7 @@ typedef CMapClass *(*CMapClass_CopyFrom_t)(void *this_, CMapClass *from, bool bU
 typedef void (*CMapClass_CopyChildrenFrom_t)(void *this_, void *from, bool bUpdateDependencies);
 typedef void (*CMapClass_CalcBounds_t)(void *this_, bool bFullUpdate);
 typedef void (*CMapClass_AddChild_t)(void *this_, CMapClass *pChild);
+typedef CMapClass *(*CMapAtom_GetParent_t)(void *this_);
 typedef struct {
     CMapClass_GetType_t GetType; // 0
 
@@ -103,8 +104,9 @@ typedef struct {
     void *CMapClass_06;
 
     void *SetParent;  // 7
+    CMapAtom_GetParent_t GetParent;  // 8
 
-                        void *CMapClass_08; void *CMapClass_09; void *CMapClass_10;
+                                            void *CMapClass_09; void *CMapClass_10;
     void *CMapClass_11; void *CMapClass_12; void *CMapClass_13; void *CMapClass_14; void *CMapClass_15;
     void *CMapClass_16;
 
@@ -119,7 +121,10 @@ typedef struct {
     void *CMapClass_CopyChildrenFrom;  // 24
 
                                                                                     void *CMapClass_25;
-    void *CMapClass_26; void *CMapClass_27; void *CMapClass_28; void *CMapClass_29; void *CMapClass_30;
+    void *CMapClass_26; void *CMapClass_27;
+
+    void *GetParent2;    // CMapClass version? 28
+                                                                void *CMapClass_29; void *CMapClass_30;
     void *CMapClass_31; void *CMapClass_32; void *CMapClass_33; void *CMapClass_34; void *CMapClass_35;
     void *CMapClass_36; void *CMapClass_37; void *CMapClass_38; void *CMapClass_39; void *CMapClass_40;
     void *CMapClass_41;

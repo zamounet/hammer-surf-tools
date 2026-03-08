@@ -16,7 +16,6 @@ Selection3D_RenderTool2D_t orig_Selection3D_RenderTool2D;
 SetActiveMapDoc_t orig_SetActiveMapDoc;
 LoadMenuW_t orig_LoadMenuW;
 LoadAcceleratorsA_t orig_LoadAcceleratorsA;
-
 // SetFocus_t orig_SetFocus;
 
 LRESULT hook_AfxWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {

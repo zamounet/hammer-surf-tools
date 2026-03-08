@@ -19,7 +19,7 @@ CMapSolid_CMapSolid_t CMapSolid_CMapSolid;
 CRender_DrawText_t CRender_DrawText;
 CSolidFaces_MakeFace_t CSolidFaces_MakeFace;
 CStrDlg_CStrDlg_t CStrDlg;
-EnumChildren_t EnumChildren;
+CMapClass_EnumChildren_t CMapClass_EnumChildren;
 GetHistory_t GetHistory;
 GetMainWnd_t GetMainWnd;
 Msg_t Msg;

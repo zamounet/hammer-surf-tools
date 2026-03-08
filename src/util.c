@@ -41,3 +41,40 @@ void *GetFaceEditSheet() {
 FaceEditSheetFaces *CFaceEditSheet_GetFaces(void *sheet) {
     return (void *)sheet + CFaceEditSheet_m_Faces_Offset;
 }
+
+static bool solid_count_cb(CMapClass *ent, void *param) {
+    int *count = (int *)param;
+    if (CMapClass_IsSolid(ent)) {
+        (*count)++;
+    }
+    return true;
+}
+
+static bool get_first_solid_cb(CMapClass *ent, void *param) {
+    CMapClass **out = (CMapClass **)param;
+    if (CMapClass_IsSolid(ent)) {
+        *out = ent;
+        return false;
+    }
+    return true;
+}
+
+int CMapClass_SolidCount(CMapClass *ent) {
+    if (CMapClass_IsSolid(ent)) {
+        return 1;
+    }
+
+    int count = 0;
+    CMapClass_EnumChildren(ent, solid_count_cb, &count, nullptr);
+    return count;
+}
+
+CMapClass *CMapClass_FirstSolid(CMapClass *ent) {
+    if (CMapClass_IsSolid(ent)) {
+        return ent;
+    }
+
+    CMapClass *solid = nullptr;
+    CMapClass_EnumChildren(ent, get_first_solid_cb, &solid, nullptr);
+    return solid;
+}

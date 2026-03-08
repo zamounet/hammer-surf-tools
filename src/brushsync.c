@@ -42,7 +42,7 @@ static void move_brush(int *start, int *end) {
     find.pos[2] = start[2];
     find.ent = nullptr;
 
-    EnumChildren(doc->m_pWorld, find_ent_by_pos, &find, nullptr);
+    CMapClass_EnumChildren(doc->m_pWorld, find_ent_by_pos, &find, nullptr);
     /* log_msg("[hook] FindEnt = %p\n", find.ent); */
 
     if (find.ent) {
