@@ -3,12 +3,13 @@
 #include "triggergen.h"
 #include "hammerfuncs.h"
 #include "measure.h"
+#include "contextmenu.h"
+
+// should belong somewhere like "offsets.h"
+size_t CMainFrame_m_pFaceEditSheet_Offset;
+size_t CFaceEditSheet_m_Faces_Offset;
 
 static CMapDoc *active_map_doc;
-
-// TODO: dont do this
-static void *face_edit_sheet;
-
 
 Clipper3D_DrawBrushExtents_t orig_Clipper3D_DrawBrushExtents;
 CFaceEditSheet_ClickFace_t orig_CFaceEditSheet_ClickFace;
@@ -29,11 +30,6 @@ CMapDoc *GetActiveMapDoc() {
     return active_map_doc;
 }
 
-// TODO: dont do this
-void *GetFaceEditSheet() {
-    return face_edit_sheet;
-}
-
 // enum {
 //     cfToggle    = 0x01,			// toggle - if selected, then unselect
 //     cfSelect    = 0x02,			// select
@@ -44,7 +40,6 @@ void *GetFaceEditSheet() {
 
 void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode) {
     orig_CFaceEditSheet_ClickFace(this_, pSolid, faceIndex, cmd, clickMode);
-    face_edit_sheet = this_;
 }
 
 // fix an annoyance
@@ -73,14 +68,7 @@ void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex
 // }
 
 bool hook_EnableMenuItem(HMENU hMenu, UINT uIDEnableItem, UINT uEnable) {
-    // log_msg("EnableMenuItem %p %p %p %p\n", hMenu, uIDEnableItem, uEnable, 42069);
-    if (uEnable & MF_BYPOSITION) {
-        UINT id = GetMenuItemID(hMenu, (int)uIDEnableItem);
-        if (id == CMD_CURVED_RAMP_GENERATOR || id == CMD_ANGLEFIX || id == CMD_TRIGGER_GENERATOR) {
-            uEnable = MF_ENABLED;
-        }
-    }
-
+    uEnable = decide_menu_item_enabled(hMenu, uIDEnableItem, uEnable);
     return orig_EnableMenuItem(hMenu, uIDEnableItem, uEnable);
 }
 
@@ -90,13 +78,11 @@ bool hook_EnableMenuItem(HMENU hMenu, UINT uIDEnableItem, UINT uEnable) {
 // }
 
 void hook_Selection3D_RenderTool2D(void *this_, void *pRender) {
-    /* log_msg("[hook] Selection3D::RenderTool2D %p %p\n", this_, pRender); */
     orig_Selection3D_RenderTool2D(this_, pRender);
-
     measure_render_2d(this_, pRender);
 }
 
 void hook_Clipper3D_DrawBrushExtents(void *this_, void *pRender, void *pSolid, int nFlags) {
-    measure_clipper_plane(this_, pRender);
     orig_Clipper3D_DrawBrushExtents(this_, pRender, pSolid, nFlags);
+    measure_clipper_plane(this_, pRender);
 }

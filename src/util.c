@@ -1,5 +1,6 @@
 #include "util.h"
 #include "hammerfuncs.h"
+#include "hooks.h"
 
 int AfxMessageBoxF(UINT nType, const char* fmt, ...) {
     const int BUFFER_SIZE = 512;
@@ -27,4 +28,16 @@ CMapClass *new_CMapSolid() {
 
 RefVector *CMapDoc_GetSelection(CMapDoc *doc) {
     return &doc->m_pSelection->m_SelectionList;
+}
+
+void *GetFaceEditSheet() {
+    void *wnd = GetMainWnd();
+    if (!wnd) {
+        return nullptr;
+    }
+    return *(void **)((void *)wnd + CMainFrame_m_pFaceEditSheet_Offset);
+}
+
+FaceEditSheetFaces *CFaceEditSheet_GetFaces(void *sheet) {
+    return (void *)sheet + CFaceEditSheet_m_Faces_Offset;
 }

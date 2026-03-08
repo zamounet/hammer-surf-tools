@@ -111,5 +111,21 @@ int AfxMessageBoxF(UINT nType, const char* fmt, ...);
 CMapClass *new_CMapEntity();
 CMapClass *new_CMapSolid();
 RefVector *CMapDoc_GetSelection(CMapDoc *doc);
+void *GetFaceEditSheet();
+
+
+typedef struct {
+    CMapDoc *pMapDoc;
+    CMapFace *pMapFace;
+    CMapClass *pMapSolid;
+} StoredFace;
+// TODO: make a RefVector macro
+typedef struct {
+    StoredFace *list;
+    uint64_t *capacity;
+    // int padding;
+    int length;
+} FaceEditSheetFaces;
+FaceEditSheetFaces *CFaceEditSheet_GetFaces(void *sheet);
 
 #endif // UTIL_H

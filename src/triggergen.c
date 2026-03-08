@@ -96,15 +96,13 @@ CMapClass *CreateTriggerExtrudedFromFace(CMapFace *pTargetFace) {
 }
 
 void do_trigger_generator() {
-    void *sheet = GetFaceEditSheet();
     CMapDoc *doc = GetActiveMapDoc();
+    void *sheet = GetFaceEditSheet();
     if (!sheet || !doc) {
-        // TODO: temp
-        AfxMessageBoxF(MB_OK, "Select some faces with the texture tool first.");
         return;
     }
 
-    FaceEditSheetFaces *faces = (void *)sheet + CFACEEDITSHEET_OFFSET_FACES;
+    FaceEditSheetFaces *faces = CFaceEditSheet_GetFaces(sheet);
 
     if (faces->length < 1) {
         AfxMessageBoxF(MB_OK, "Select some faces with the texture tool first.");

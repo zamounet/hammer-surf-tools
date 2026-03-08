@@ -8,4 +8,6 @@ typedef HMENU (*LoadMenuW_t)(HINSTANCE hInstance, LPCWSTR lpMenuName);
 extern LoadMenuW_t orig_LoadMenuW;
 HMENU hook_LoadMenuW(HINSTANCE hInstance, LPCWSTR lpMenuName);
 
+UINT decide_menu_item_enabled(HMENU hMenu, UINT uIDEnableItem, UINT uEnable);
+
 #endif // CONTEXTMENU_H

@@ -21,7 +21,7 @@ CSolidFaces_MakeFace_t CSolidFaces_MakeFace;
 CStrDlg_CStrDlg_t CStrDlg;
 EnumChildren_t EnumChildren;
 GetHistory_t GetHistory;
-// GetMainWnd_t GetMainWnd;
+GetMainWnd_t GetMainWnd;
 Msg_t Msg;
 SetModifiedFlag_t SetModifiedFlag;
 ValveAlloc_t ValveAlloc;

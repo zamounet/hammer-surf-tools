@@ -26,8 +26,7 @@ void log_msg(const char *fmt, ...);
 #define CMAPENTITY_SIZE                    0x280
 #define CMAPSOLID_SIZE                     0x230
 
-// struct offsets
-#define CFACEEDITSHEET_OFFSET_FACES        0x2F98 // TODO: probably want to scan for this instead
+// struct offsets that are (hopefully) stable
 #define CLIPPER3D_OFFSET_PLANE_NORMAL      0x0FC
 #define CMAINFRAME_OFFSET_OBJECTPROPERTIES 0x1F8
 #define CMAPCLASS_OFFSET_FACES             0x1A0
@@ -79,20 +78,6 @@ typedef struct {
     // int padding;
     int length;
 } FaceVector;
-
-typedef struct {
-    CMapDoc *pMapDoc;
-    CMapFace *pMapFace;
-    CMapClass *pMapSolid;
-} StoredFace;
-
-// TODO: make a RefVector macro
-typedef struct {
-    StoredFace *list;
-    uint64_t *capacity;
-    // int padding;
-    int length;
-} FaceEditSheetFaces;
 
 typedef struct {
     float yaw;

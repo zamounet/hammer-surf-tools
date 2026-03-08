@@ -27,7 +27,7 @@ bool script_data_init() {
             TransRotate = func;
         }
 
-        log_msg("[scriptfuncs] %-25s found @ %p\n", name, func);
+        log_msg("[scriptfuncs] %-33s found @ %p\n", name, func);
     }
 
     return TransScale && TransMove && TransRotate;

@@ -6,6 +6,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef enum {
+    PATTERN_REL      = 1,
+    PATTERN_OPTIONAL = 2,
+    PATTERN_OFFSET   = 4,
+} PatternFlags;
+
 typedef struct {
     const char *name;
     const uint8_t *pattern;
@@ -13,8 +19,7 @@ typedef struct {
     void **out;
     void *hook;
     int offset;
-    bool rel;
-    bool optional;
+    PatternFlags flags;
 }  Pattern_t;
 
 bool scan_all(uint8_t *base, size_t size);

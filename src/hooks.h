@@ -31,8 +31,9 @@ typedef void (*Selection3D_RenderTool2D_t)(void *this_, void *pRender);
 extern Selection3D_RenderTool2D_t orig_Selection3D_RenderTool2D;
 void hook_Selection3D_RenderTool2D(void *this_, void *pRender);
 
+extern size_t CMainFrame_m_pFaceEditSheet_Offset;
+extern size_t CFaceEditSheet_m_Faces_Offset;
 
 CMapDoc *GetActiveMapDoc();
-void *GetFaceEditSheet();
 
 #endif // HOOKS_H

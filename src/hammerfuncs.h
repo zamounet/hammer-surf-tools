@@ -90,8 +90,8 @@ extern EnumChildren_t EnumChildren;
 typedef void *(*GetHistory_t)();
 extern GetHistory_t GetHistory;
 
-// typedef void *(*GetMainWnd_t)();
-// extern GetMainWnd_t GetMainWnd;
+typedef void *(*GetMainWnd_t)();
+extern GetMainWnd_t GetMainWnd;
 
 enum MWMSGTYPE {
     mwStatus,

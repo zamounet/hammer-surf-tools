@@ -21,24 +21,24 @@ static void *resolve_rel(void *call_addr, const uint8_t *insn) {
 }
 
 static Pattern_t g_patterns[] = {
-    // { 
-    //     // find "You are about to export over your"
-    //     "GetMainWnd",
-    //     (const uint8_t[]){
-    //         0x48, 0x8B, 0x0A,
-    //         0x48, 0x8B, 0x01,
-    //         0xFF, 0x50, 0x08,
-    //         0x85, 0xFF,
-    //         0x75, 0x2A,
-    //         0xE8, 0x8F, 0x55, 0xFE, 0xFF,
-    //         0x41, 0xB9, 0x34, 0x00, 0x00, 0x00
-    //     },
-    //     "xxxxxxxxxxxxxx????xxxxxx",
-    //     (void **)&GetMainWnd,
-    //     nullptr,
-    //     13,
-    //     true
-    // },
+    { 
+        // find "You are about to export over your"
+        "GetMainWnd",
+        (const uint8_t[]){
+            0x48, 0x8B, 0x0A,
+            0x48, 0x8B, 0x01,
+            0xFF, 0x50, 0x08,
+            0x85, 0xFF,
+            0x75, 0x2A,
+            0xE8, 0x8F, 0x55, 0xFE, 0xFF,
+            0x41, 0xB9, 0x34, 0x00, 0x00, 0x00
+        },
+        "xxxxxxxxxxxxxx????xxxxxx",
+        (void **)&GetMainWnd,
+        nullptr,
+        13,
+        PATTERN_REL
+    },
     { 
         "AfxWndProc",
         (const uint8_t[]){
@@ -301,7 +301,7 @@ static Pattern_t g_patterns[] = {
         (void **)&ScriptDataPtr,
         nullptr,
         4,
-        true
+        PATTERN_REL,
     },
     { 
         // 48 89 5c 24 30  e8 ?? ?? ?? ??  48 8b 8f 88 0b 00 00
@@ -315,7 +315,7 @@ static Pattern_t g_patterns[] = {
         (void **)&GetHistory,
         nullptr,
         5,
-        true
+        PATTERN_REL,
     },
     { 
         // 48 89 5c 24 10    48 89 4c 24 08    57    48 83 ec 20    48 8b f9    e8 ?? ?? ?? ??    90    48 8d 8f 90 01 00 00
@@ -580,6 +580,42 @@ static Pattern_t g_patterns[] = {
         "xxxxxxxxxxxxxxxxxxxxxxxxx",
         (void **)&CHistory_Keep
     },
+    {
+        // 8b cb  41 bd 03 01 00 00  d1 e9  83 e1 08  48 8b a8 a0 17 00 00  8b d1
+        "CMainFrame::m_pFaceEditSheet offset",
+        (const uint8_t[]){
+            0x8B, 0xCB,
+            0x41, 0xBD, 0x03, 0x01, 0x00, 0x00,
+            0xD1, 0xE9,
+            0x83, 0xE1, 0x08,
+            0x48, 0x8B, 0xA8, 0xA0, 0x17, 0x00, 0x00,
+            0x8B, 0xD1
+        },
+        "xxxxxxxxxxxxxxxxxxxxxx",
+        (void **)&CMainFrame_m_pFaceEditSheet_Offset,
+        nullptr,
+        16,
+        PATTERN_OFFSET
+    },
+    {
+        // 48 89 5c 24 70  48 89 74 24 78  40 f6 c5 08  0f ?? ?? 00 00 00  33 f6  39 b1 ?? ?? 00 00  7e ??  48 8b 87 ?? ?? 00 00
+        "CFaceEditSheet::m_Faces offset",
+        (const uint8_t[]){
+            0x48, 0x89, 0x5C, 0x24, 0x70,
+            0x48, 0x89, 0x74, 0x24, 0x78,
+            0x40, 0xF6, 0xC5, 0x08,
+            0x0F, 0x84, 0xC9, 0x00, 0x00, 0x00,
+            0x33, 0xF6,
+            0x39, 0xB1, 0xA8, 0x2F, 0x00, 0x00,
+            0x7E, 0x5C,
+            0x48, 0x8B, 0x87, 0x98, 0x2F, 0x00, 0x00
+        },
+        "xxxxxxxxxxxxxxx??xxxxxxx??xxx?xxx??xx",
+        (void **)&CFaceEditSheet_m_Faces_Offset,
+        nullptr,
+        33,
+        PATTERN_OFFSET
+    },
     { 
         "LoadMenuW",
         nullptr,
@@ -633,7 +669,7 @@ static Pattern_t g_patterns[] = {
     //     (void **)&orig_RegisterHotkey,
     //     hook_RegisterHotkey,
     //     15,
-    //     true
+    //     PATTERN_REL,
     // }
 };
 
@@ -675,7 +711,9 @@ bool scan_all(uint8_t *base, size_t size) {
 
         if (!addr) {
             log_msg("[patterns] %s not found\n", p->name);
-            success = false;
+            if (!(p->flags & PATTERN_OPTIONAL)) {
+                success = false;
+            }
             continue;
         }
 
@@ -683,15 +721,19 @@ bool scan_all(uint8_t *base, size_t size) {
             addr += p->offset;
         }
 
-        if (p->rel) {
+        if (p->flags & PATTERN_REL) {
             addr = resolve_rel(addr, addr);
+        } else if (p->flags & PATTERN_OFFSET) {
+            addr = (void *)(size_t)*(uint32_t*)addr;
         }
 
         if (p->hook) {
 #ifndef TEST_PATTERNS
             if (MH_CreateHook(addr, p->hook, p->out) != MH_OK) {
                 log_msg("[patterns] %s MH_CreateHook failed\n", p->name);
-                success = false;
+                if (!(p->flags & PATTERN_OPTIONAL)) {
+                    success = false;
+                }
                 continue;
             }
 #endif
@@ -700,7 +742,7 @@ bool scan_all(uint8_t *base, size_t size) {
         }
 
 #ifndef TEST_PATTERNS
-        log_msg("[patterns] %-25s\tfound @ %p\n", p->name, addr);
+        log_msg("[patterns] %-30s\tfound %c %p\n", p->name, (p->flags & PATTERN_OFFSET ? '=' : '@'), addr);
 #endif
     }
 
