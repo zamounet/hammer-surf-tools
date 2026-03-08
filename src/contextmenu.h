@@ -4,10 +4,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-typedef HMENU (*LoadMenuW_t)(HINSTANCE hInstance, LPCWSTR lpMenuName);
-extern LoadMenuW_t orig_LoadMenuW;
-HMENU hook_LoadMenuW(HINSTANCE hInstance, LPCWSTR lpMenuName);
-
 UINT decide_menu_item_enabled(HMENU hMenu, UINT uIDEnableItem, UINT uEnable);
+void menu_check_command(UINT cmd);
+void check_add_menus(HMENU menu, const void *lpMenuName);
 
 #endif // CONTEXTMENU_H

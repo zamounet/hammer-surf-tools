@@ -1,7 +1,8 @@
 #include "common.h"
 #include "contextmenu.h"
-
-LoadMenuW_t orig_LoadMenuW;
+#include "triggergen.h"
+#include "anglefix.h"
+#include "rampgen.h"
 
 static void add_menus(HMENU hPopup, int pos) {
     HMENU hSubMenu = CreatePopupMenu();
@@ -18,6 +19,7 @@ static void add_menus(HMENU hPopup, int pos) {
     );
 }
 
+
 UINT decide_menu_item_enabled(HMENU hMenu, UINT uIDEnableItem, UINT uEnable) {
     if (uEnable & MF_BYPOSITION) {
         UINT id = GetMenuItemID(hMenu, (int)uIDEnableItem);
@@ -28,9 +30,17 @@ UINT decide_menu_item_enabled(HMENU hMenu, UINT uIDEnableItem, UINT uEnable) {
     return uEnable;
 }
 
-HMENU hook_LoadMenuW(HINSTANCE hInstance, LPCWSTR lpMenuName) {
-    HMENU menu = orig_LoadMenuW(hInstance, lpMenuName);
+void menu_check_command(UINT cmd) {
+    if (cmd == CMD_CURVED_RAMP_GENERATOR) {
+        do_ramp_generator();
+    } else if (cmd == CMD_ANGLEFIX) {
+        do_anglefix();
+    } else if (cmd == CMD_TRIGGER_GENERATOR) {
+        do_trigger_generator();
+    }
+}
 
+void check_add_menus(HMENU menu, const void *lpMenuName) {
     if (lpMenuName == (void *)IDR_POPUPS) {
         HMENU hPopup = GetSubMenu(menu, 0); // "Object"
         int count = GetMenuItemCount(hPopup);
@@ -42,6 +52,4 @@ HMENU hook_LoadMenuW(HINSTANCE hInstance, LPCWSTR lpMenuName) {
         int count = GetMenuItemCount(hPopup);
         add_menus(hPopup, count - 3);
     }
-
-    return menu;
 }

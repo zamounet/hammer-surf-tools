@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include "patterns.h"
-#include "wndproc.h"
 #include "hooks.h"
 #include "contextmenu.h"
 #include "scriptfuncs.h"
@@ -622,40 +621,6 @@ static Pattern_t g_patterns[] = {
         (void **)&orig_EnableMenuItem,
         hook_EnableMenuItem,
     },
-    // {
-    //     "<SetupHotkeys>",
-    //     (const uint8_t[]){
-    //         0x48, 0x89, 0x5C, 0x24, 0x10,
-    //         0x44, 0x89, 0x44, 0x24, 0x18,
-    //         0x48, 0x89, 0x4C, 0x24, 0x08,
-    //         0x55,
-    //         0x56,
-    //         0x57,
-    //         0x41, 0x54,
-    //         0x41, 0x55,
-    //         0x41, 0x56,
-    //         0x41, 0x57,
-    //         0x48, 0x83, 0xEC, 0x30,
-    //         0x48, 0x8B, 0xFA
-    //     },
-    //     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    //     (void **)&orig_SetupHotkeys,
-    //     hook_SetupHotkeys,
-    // },
-    // {
-    //     "<RegisterHotkey>",
-    //     (const uint8_t[]){
-    //         0x4C, 0x8D, 0x84, 0x24, 0x88, 0x00, 0x00, 0x00,
-    //         0x8B, 0x53, 0x18,
-    //         0x48, 0x8D, 0x4B, 0x08,
-    //         0xE8
-    //     },
-    //     "xxxxxxxxxxxxxxxx",
-    //     (void **)&orig_RegisterHotkey,
-    //     hook_RegisterHotkey,
-    //     15,
-    //     PATTERN_REL,
-    // }
 };
 
 static void *find_pattern(uint8_t *base, size_t size, const uint8_t *pat, const char *mask) {

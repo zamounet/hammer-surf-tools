@@ -26,7 +26,6 @@ add_library(hammer-surf-utils SHARED
   src/common.c
   src/wrapper.c
   src/patterns.c
-  src/wndproc.c
   src/hooks.c
   src/hammerfuncs.c
   src/contextmenu.c
@@ -49,7 +48,6 @@ add_executable(test-patterns
   src/common.c
   # src/wrapper.c
   src/patterns.c
-  src/wndproc.c
   src/hooks.c
   src/hammerfuncs.c
   src/contextmenu.c
