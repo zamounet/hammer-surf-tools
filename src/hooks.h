@@ -19,9 +19,9 @@ typedef void (*SetActiveMapDoc_t)(void *doc);
 extern SetActiveMapDoc_t orig_SetActiveMapDoc;
 void hook_SetActiveMapDoc(void *doc);
 
-typedef void (*CFaceEditSheet_ClickFace_t)(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode);
-extern CFaceEditSheet_ClickFace_t orig_CFaceEditSheet_ClickFace;
-void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode);
+// typedef void (*CFaceEditSheet_ClickFace_t)(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode);
+// extern CFaceEditSheet_ClickFace_t orig_CFaceEditSheet_ClickFace;
+// void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode);
 
 typedef bool (*EnableMenuItem_t)(HMENU hMenu, UINT uIDEnableItem, UINT uEnable);
 extern EnableMenuItem_t orig_EnableMenuItem;

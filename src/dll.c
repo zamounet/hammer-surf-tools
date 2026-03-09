@@ -57,8 +57,6 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID) {
     if (reason == DLL_PROCESS_ATTACH) {
         HANDLE thread;
 
-        log_msg("%x\n", offsetof(CMapFace, Points));
-
         DisableThreadLibraryCalls(hinst);
 
         thread = CreateThread(nullptr, 0, hook_init_thread, hinst, 0, nullptr);

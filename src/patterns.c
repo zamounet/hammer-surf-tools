@@ -536,20 +536,20 @@ static Pattern_t g_patterns[] = {
         (void **)&orig_Selection3D_RenderTool2D,
         hook_Selection3D_RenderTool2D
     },
-    { 
-        "CFaceEditSheet::ClickFace",
-        (const uint8_t[]){
-            0x48, 0x89, 0x6c, 0x24, 0x18,
-            0x48, 0x89, 0x7c, 0x24, 0x20,
-            0x41, 0x54,
-            0x41, 0x56,
-            0x41, 0x57,
-            0x48, 0x83, 0xec, 0x50
-        },
-        "xxxxxxxxxxxxxxxxxxxx",
-        (void **)&orig_CFaceEditSheet_ClickFace,
-        hook_CFaceEditSheet_ClickFace
-    },
+    // {
+    //     "CFaceEditSheet::ClickFace",
+    //     (const uint8_t[]){
+    //         0x48, 0x89, 0x6c, 0x24, 0x18,
+    //         0x48, 0x89, 0x7c, 0x24, 0x20,
+    //         0x41, 0x54,
+    //         0x41, 0x56,
+    //         0x41, 0x57,
+    //         0x48, 0x83, 0xec, 0x50
+    //     },
+    //     "xxxxxxxxxxxxxxxxxxxx",
+    //     (void **)&orig_CFaceEditSheet_ClickFace,
+    //     hook_CFaceEditSheet_ClickFace
+    // },
     //{ 
     //    "RenderUtils::DrawBoundsText",
     //    (const uint8_t[]){

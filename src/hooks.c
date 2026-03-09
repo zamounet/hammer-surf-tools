@@ -10,7 +10,7 @@ static CMapDoc *active_map_doc;
 
 AfxWndProc_t orig_AfxWndProc;
 Clipper3D_DrawBrushExtents_t orig_Clipper3D_DrawBrushExtents;
-CFaceEditSheet_ClickFace_t orig_CFaceEditSheet_ClickFace;
+// CFaceEditSheet_ClickFace_t orig_CFaceEditSheet_ClickFace;
 EnableMenuItem_t orig_EnableMenuItem;
 Selection3D_RenderTool2D_t orig_Selection3D_RenderTool2D;
 SetActiveMapDoc_t orig_SetActiveMapDoc;
@@ -44,9 +44,9 @@ void hook_SetActiveMapDoc(void *doc) {
 //     cfEdgeAlign = 0x10			// align face texture coordinates to 3d view alignment - should be here???
 // };
 
-void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode) {
-    orig_CFaceEditSheet_ClickFace(this_, pSolid, faceIndex, cmd, clickMode);
-}
+// void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode) {
+//     orig_CFaceEditSheet_ClickFace(this_, pSolid, faceIndex, cmd, clickMode);
+// }
 
 // fix an annoyance
 // void *hook_SetFocus(void *this_) {
