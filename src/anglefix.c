@@ -124,10 +124,10 @@ void do_anglefix() {
     }
 
     if (n_unneeded > 0) {
-        AfxMessageBoxF(MB_OK, "Warning: %d selected brushes skipped because rampfix wasn't needed.");
+        AfxMessageBoxF(MB_OK, "Warning: %d selected brushes skipped because rampfix wasn't needed.", n_unneeded);
     }
 
     if (n_unsurfable > 0) {
-        AfxMessageBoxF(MB_OK, "Warning: %d selected brushes skipped because there were no surfable faces.");
+        AfxMessageBoxF(MB_OK, "Warning: %d selected brushes skipped because there were no surfable faces.", n_unsurfable);
     }
 }
