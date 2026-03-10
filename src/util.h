@@ -110,18 +110,19 @@ static inline char *NormalSurfString(Vec3 *normal, const char *pfx, bool *out_su
 int AfxMessageBoxF(UINT nType, const char* fmt, ...);
 CMapClass *new_CMapEntity();
 CMapClass *new_CMapSolid();
-RefVector *CMapDoc_GetSelection(CMapDoc *doc);
+MapClassPtrVector *CMapDoc_GetSelection(CMapDoc *doc);
 void *GetFaceEditSheet();
 
 bool CMapClass_IsSolid(CMapClass *ent);
 bool CMapClass_IsWorldBrush(CMapClass *ent);
-bool IsAllWorldBrushes(RefVector *selected);
+bool IsAllWorldBrushes(MapClassPtrVector *selected);
 
-typedef struct {
+typedef struct StoredFace {
     CMapDoc *pMapDoc;
     CMapFace *pMapFace;
     CMapClass *pMapSolid;
 } StoredFace;
-RefVector *CFaceEditSheet_GetFaces(void *sheet);
+DEFINE_VECTOR(StoredFace, StoredFaceVector);
+StoredFaceVector *CFaceEditSheet_GetFaces(void *sheet);
 
 #endif // UTIL_H

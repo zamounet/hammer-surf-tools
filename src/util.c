@@ -3,7 +3,7 @@
 #include "hooks.h"
 
 int AfxMessageBoxF(UINT nType, const char* fmt, ...) {
-    const int BUFFER_SIZE = 512;
+    const size_t BUFFER_SIZE = 512;
     char buffer[BUFFER_SIZE];
 
     va_list args;
@@ -26,7 +26,7 @@ CMapClass *new_CMapSolid() {
     return ent;
 }
 
-RefVector *CMapDoc_GetSelection(CMapDoc *doc) {
+MapClassPtrVector *CMapDoc_GetSelection(CMapDoc *doc) {
     return &doc->m_pSelection->m_SelectionList;
 }
 
@@ -38,7 +38,7 @@ void *GetFaceEditSheet() {
     return *(void **)((void *)wnd + CMainFrame_m_pFaceEditSheet_Offset);
 }
 
-RefVector *CFaceEditSheet_GetFaces(void *sheet) {
+StoredFaceVector *CFaceEditSheet_GetFaces(void *sheet) {
     return (void *)sheet + CFaceEditSheet_m_Faces_Offset;
 }
 
@@ -57,7 +57,7 @@ bool CMapClass_IsWorldBrush(CMapClass *ent) {
     return false;
 }
 
-bool IsAllWorldBrushes(RefVector *selected) {
+bool IsAllWorldBrushes(MapClassPtrVector *selected) {
     int count = 0;
     for (auto i = 0; i < selected->length; i++) {
         if (CMapClass_IsWorldBrush(selected->items[i])) {

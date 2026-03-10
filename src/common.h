@@ -19,6 +19,7 @@
 
 void log_msg(const char *fmt, ...);
 
+#define HAMMER_ALIGN __attribute__((packed, aligned(4)))
 #define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
 
 // minimum surf angle
@@ -39,14 +40,20 @@ typedef struct CMapClass CMapClass;
 typedef struct CMapFace CMapFace;
 typedef struct CMapDoc CMapDoc;
 
-typedef struct {
-    void **items; // CUtlMemory
-    int allocation_count;
-    int grow_size;
-    // int padding;
-    int length; // CUtlVector
-} RefVector;
-static_assert(sizeof(RefVector) == 8 + 8 + 4 + 4, "RefVector size wrong");
+// CUtlVector
+#define DEFINE_VECTOR(T, Name) \
+typedef struct HAMMER_ALIGN { \
+    T *items; \
+    int allocation_count; \
+    int grow_size; \
+    int length; \
+    int padding; \
+} Name
+
+DEFINE_VECTOR(CMapFace, FaceVector);
+DEFINE_VECTOR(CMapClass *, MapClassPtrVector);
+static_assert(sizeof(MapClassPtrVector) == 8 + 4 + 4 + 4 + 4,   "MapClassPtrVector size wrong");
+static_assert(offsetof(MapClassPtrVector, length) == 8 + 4 + 4, "MapClassPtrVector::length offset wrong");
 
 typedef struct {
     float x;
@@ -108,7 +115,7 @@ typedef struct {
     void *CMapClass_16;
 
     void *DoTransform; // 17 CMapAtom
-    CMapPoint_SetOrigin_t SetOrigin;   // 18 CMapPoint
+    CMapPoint_SetOrigin_t SetOrigin;   // 18 CMapPoint (GetOrigin is compiled away)
     Dtor_t Dtor;       // 19 CMapSolid
 
                                                                                     void *CMapClass_20;
@@ -146,7 +153,7 @@ typedef struct {
     CEditGameClassVTable *vtable;
 } CEditGameClass;
 
-typedef struct CMapClass {
+typedef struct HAMMER_ALIGN CMapClass {
     CMapClassVTable *vtable;   // 0x00
     void *CMapAtom_0x08;       // 0x08
     void *CMapAtom_0x10;       // 0x10
@@ -159,7 +166,7 @@ typedef struct CMapClass {
     void *CMapAtom_0x48;       // 0x48
 
     Vec3 m_Origin;             // 0x50 CMapPoint
-    // 4 bytes implicit padding
+    int padding;
 
     // CMapClass start
 
@@ -204,29 +211,25 @@ typedef struct CMapClass {
     void *CMapSolid_0x188;     // 0x188
     CEditGameClass m_EditGameClass;      // 0x190 // CMapEntity
     void *CMapSolid_0x198;     // 0x198 EditGameClass data? union for CMapFace needed
-    RefVector Faces;          // 0x1A0
+    FaceVector Faces;          // 0x1A0
 } CMapClass; // incomplete sized type
 static_assert(offsetof(CMapClass, m_Origin)      == CMAPCLASS_OFFSET_ORIGIN,      "CMapClass::m_Origin offset wrong");
 static_assert(offsetof(CMapClass, m_Render2DBox) == CMAPCLASS_OFFSET_RENDER2DBOX, "CMapClass::m_Render2DBox offset wrong");
 static_assert(offsetof(CMapClass, Faces)         == CMAPCLASS_OFFSET_FACES,       "CMapClass::Faces offset wrong");
 
-// TODO: cleanup
-typedef struct __attribute__((packed, aligned(4))) {
+typedef struct HAMMER_ALIGN {
     Vec3 vec;
-    void *unk1;
-    void *unk2;
-    void *unk3;
-    void *unk4;
-    void *unk5;
-    void *unk6;
+    int padding;
+    uint8_t padding2[VEC3POINTS_SIZE - sizeof(Vec3) - sizeof(int)];
 } Vec3Points;
+static_assert(sizeof(Vec3Points) == VEC3POINTS_SIZE, "Vec3Points size wrong");
 
-typedef struct CMapFace {
+typedef struct HAMMER_ALIGN CMapFace {
     void *vtable;              // 0x00
     uint8_t padding[0x188];    // 0x08  CMapAtom stuff.. make struct later
     Plane plane;               // 0x190
     int pad;
-    Vec3Points *Points;         // 0x1C8
+    Vec3Points *Points;         // 0x1C8 TODO: check if this is a RefVector
     uint64_t nPoints;           // 0x1D0
     int padding3;               // 0x1D8
     int nPoints_2;              // 0x1DC
@@ -237,11 +240,11 @@ static_assert(offsetof(CMapFace, Points)             == 0x1C8, "CMapFace::Points
 static_assert(offsetof(CMapFace, nPoints_2)          == 0x1DC, "CMapFace::nPoints_2 offset wrong");
 static_assert(sizeof(CMapFace)               == CMAPFACE_SIZE, "CMapFace size wrong");
 
-typedef struct {
+typedef struct HAMMER_ALIGN {
     void *vtable;              // 0x00
     void *unk1;                // 0x08
     void *unk2;                // 0x10
-    RefVector m_SelectionList; // 0x18
+    MapClassPtrVector m_SelectionList; // 0x18
 } CSelection; // incomplete sized type
 static_assert(offsetof(CSelection, m_SelectionList) == CSELECTION_OFFSET_SELECTIONLIST, "CSelection::m_SelectionList offset wrong");
 
@@ -254,7 +257,7 @@ typedef struct {
 static_assert(offsetof(CMapDocVTable, AddObjectToWorld)
     == MAPDOC_VTABLE_ADDOBJECTTOWORLD * sizeof(void *), "CMapDocVTable::AddObjectToWorld offset wrong");
 
-typedef struct CMapDoc {
+typedef struct HAMMER_ALIGN CMapDoc {
     CMapDocVTable *vtable;
     uint8_t padding[CMAPDOC_OFFSET_MPWORLD - sizeof(CMapDocVTable *)];
     void *m_pWorld;

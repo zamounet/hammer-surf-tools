@@ -25,9 +25,8 @@ static char ramp_orientation(CMapClass *solid) {
     char best_axis;
     const float ideal_normal = 0.64f;
 
-    CMapFace **faces = (CMapFace **)&solid->Faces.items;
     for (auto i = 0; i < solid->Faces.length; i++) {
-        CMapFace *face = faces[i];
+        CMapFace *face = &solid->Faces.items[i];
         float znorm = fabsf(face->plane.normal.z);
         float delta = fabsf(znorm - ideal_normal);
         char axis = orientation_to_axis(CMapFace_GetOrientation(face));
@@ -62,6 +61,7 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
     Vec3 orig_size;
     BBoxSize(&solid->m_Render2DBox, &orig_size);
     Vec3 orig_pos = solid->m_Origin;
+    // log_msg("orig_pos %g %g %g\n", (double)orig_pos.x, (double)orig_pos.y, (double)orig_pos.z);
 
     int n_items = 0;
     CMapClass *items[segments + 1];
@@ -82,7 +82,7 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
 
         Vec3 size;
         BBoxSize(bbox_prev, &size); // or use the selected solid's size
-        // log_msg("%g %g %g -> %g %g %g\n", (double)orig_size.x, (double)orig_size.y, (double)orig_size.z,
+        // log_msg("seg %d: %g %g %g -> %g %g %g\n", seg, (double)orig_size.x, (double)orig_size.y, (double)orig_size.z,
                 // (double)size.x, (double)size.y, (double)size.z);
         // assert((int)size.x == (int)orig_size.x && (int)size.y == (int)orig_size.y && (int)size.z == (int)orig_size.z);
 
@@ -151,6 +151,8 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
                 orig_pos.z - copy->m_Origin.z,
             };
 
+            // log_msg("moved %g %g %g\n", (double)moved.x, (double)moved.y, (double)moved.z);
+
             for (auto i = 0; i < n_items; i++) {
                 TransMove(items[i], &moved);
             }
@@ -170,7 +172,7 @@ static CMapClass *get_selected_ramp() {
         return nullptr;
     }
 
-    RefVector *selected = CMapDoc_GetSelection(doc);
+    MapClassPtrVector *selected = CMapDoc_GetSelection(doc);
 
     if (selected->length != 1) {
         AfxMessageBoxF(MB_OK, "Selection should contain exactly 1 item.");

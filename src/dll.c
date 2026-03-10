@@ -13,6 +13,7 @@
 static DWORD WINAPI hook_init_thread(LPVOID param) {
     log_msg("[hook] DLL loaded\n");
 
+    dump_offsets();
     wrapper();
 
     HMODULE mod;

@@ -6,6 +6,7 @@
 #define CMAPFACE_SIZE                      0x360
 #define CMAPENTITY_SIZE                    0x280
 #define CMAPSOLID_SIZE                     0x230
+#define VEC3POINTS_SIZE                    0x03C
 
 // struct offsets that are (hopefully) stable
 #define CLIPPER3D_OFFSET_PLANE_NORMAL      0x0FC
@@ -22,5 +23,7 @@
 // pattern scanned offsets
 extern size_t CMainFrame_m_pFaceEditSheet_Offset;
 extern size_t CFaceEditSheet_m_Faces_Offset;
+
+void dump_offsets();
 
 #endif // OFFSETS_H

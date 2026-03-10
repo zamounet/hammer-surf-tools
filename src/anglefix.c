@@ -16,9 +16,8 @@ static CMapFace *best_surfable_face(CMapClass *solid) {
     float best_normal_delta;
     const float ideal_normal = 0.64f;
 
-    CMapFace **faces = (CMapFace **)&solid->Faces.items;
     for (auto i = 0; i < solid->Faces.length; i++) {
-        CMapFace *face = faces[i];
+        CMapFace *face = &solid->Faces.items[i];
         float znorm = fabsf(face->plane.normal.z);
         float delta = fabsf(znorm - ideal_normal);
         if ((!best || delta < best_normal_delta) && znorm < SURF_NORMAL && znorm > 0.0f) {
@@ -49,7 +48,7 @@ void do_anglefix() {
         return;
     }
 
-    RefVector *selected = CMapDoc_GetSelection(doc);
+    MapClassPtrVector *selected = CMapDoc_GetSelection(doc);
     if (!selected->length) {
         AfxMessageBoxF(MB_OK, "Selection should contain at least 1 item.");
         return;
@@ -106,9 +105,8 @@ void do_anglefix() {
 
         // change original brush to playerclip
 
-        CMapFace **faces = (CMapFace **)&item->Faces.items;
         for (auto i = 0; i < item->Faces.length; i++) {
-            CMapFace *face = faces[i];
+            CMapFace *face = &item->Faces.items[i];
             CMapFace_SetTexture(face, "tools/toolsplayerclip", false);
             CMapFace_InitializeTextureAxes(face, TEXTURE_ALIGN_FACE, INIT_TEXTURE_ALL | INIT_TEXTURE_FORCE);
         }

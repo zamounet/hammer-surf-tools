@@ -102,7 +102,7 @@ void do_trigger_generator() {
         return;
     }
 
-    RefVector *stored_faces = CFaceEditSheet_GetFaces(sheet);
+    StoredFaceVector *stored_faces = CFaceEditSheet_GetFaces(sheet);
 
     if (stored_faces->length < 1) {
         AfxMessageBoxF(MB_OK, "Select some faces with the texture tool first.");
@@ -111,9 +111,8 @@ void do_trigger_generator() {
 
     CHistory_MarkUndoPosition(GetHistory(), nullptr, "Trigger Generation", false);
 
-    StoredFace **sfs = (StoredFace **)&stored_faces->items;
     for (auto i = 0; i < stored_faces->length; i++) {
-        StoredFace *sf = sfs[i];
+        StoredFace *sf = &stored_faces->items[i];
         CMapFace *face = sf->pMapFace;
         assert(face);
 
