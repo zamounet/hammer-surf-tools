@@ -19,10 +19,15 @@
 #define COBJECTPROPERTIES_OFFSET_HWND      0x040
 #define CSELECTION_OFFSET_SELECTIONLIST    0x018
 #define SELECTION3D_OFFSET_SELECTION       0x1A8
+#define CEDITGAMECLASS_OFFSET_CLASS        0x030
 
 // pattern scanned offsets
+#ifdef USING_OFFSET_CMAINFRAME_FACEEDITSHEET
 extern size_t CMainFrame_m_pFaceEditSheet_Offset;
+#endif
+#ifdef USING_OFFSET_CFACEEDITSHEET_FACES
 extern size_t CFaceEditSheet_m_Faces_Offset;
+#endif
 
 void dump_offsets();
 

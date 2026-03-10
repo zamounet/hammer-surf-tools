@@ -15,6 +15,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "config.h"
 #include "offsets.h"
 
 void log_msg(const char *fmt, ...);
@@ -151,7 +152,9 @@ typedef struct {
 
 typedef struct {
     CEditGameClassVTable *vtable;
-} CEditGameClass;
+    void *m_KeyValues; // WCKeyValues instance start (not pointer to)
+    // need a union in CMapClass if this is defined further
+} CEditGameClass; // incomplete sized type
 
 typedef struct HAMMER_ALIGN CMapClass {
     CMapClassVTable *vtable;   // 0x00
@@ -209,8 +212,7 @@ typedef struct HAMMER_ALIGN CMapClass {
     void *CMapSolid_0x178;     // 0x178
     void *CMapSolid_0x180;     // 0x180
     void *CMapSolid_0x188;     // 0x188
-    CEditGameClass m_EditGameClass;      // 0x190 // CMapEntity
-    void *CMapSolid_0x198;     // 0x198 EditGameClass data? union for CMapFace needed
+    CEditGameClass m_EditGameClass;      // 0x190 // CMapEntity - need a union covering CMapEntity / CMapSolid soon
     FaceVector Faces;          // 0x1A0
 } CMapClass; // incomplete sized type
 static_assert(offsetof(CMapClass, m_Origin)      == CMAPCLASS_OFFSET_ORIGIN,      "CMapClass::m_Origin offset wrong");

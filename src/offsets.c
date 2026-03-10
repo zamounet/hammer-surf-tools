@@ -1,8 +1,13 @@
 #include "common.h"
 #include "offsets.h"
 
+#ifdef USING_OFFSET_CMAINFRAME_FACEEDITSHEET
 size_t CMainFrame_m_pFaceEditSheet_Offset;
+#endif
+
+#ifdef USING_OFFSET_CFACEEDITSHEET_FACES
 size_t CFaceEditSheet_m_Faces_Offset;
+#endif
 
 void dump_offsets() {
     // log_msg("RefVector size %zx\n", sizeof(RefVector));

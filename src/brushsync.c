@@ -49,7 +49,7 @@ static void move_brush(int *start, int *end) {
         Vec3 delta;
         TransMove(find.ent, &delta);
         log_msg("[hook] moved %p with delta %.1f %.1f %.1f\n", find.ent, (double)delta.x, (double)delta.y, (double)delta.z);
-        SetModifiedFlag(doc, TRUE);
+        CMapDoc_SetModifiedFlag(doc, true);
         CMapDoc_UpdateAllViews(doc, MAPVIEW_UPDATE_OBJECTS, nullptr);
     } else {
         log_msg("[hook] failed to find ent at %d %d %d\n", find.pos[0], find.pos[1], find.pos[2]);
