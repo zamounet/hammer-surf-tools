@@ -22,7 +22,7 @@ static void *resolve_rel(void *call_addr, const uint8_t *insn) {
 
 static Pattern_t g_patterns[] = {
 #ifdef USING_GETMAINWND
-    { 
+    {
         // find "You are about to export over your"
         "GetMainWnd",
         (const uint8_t[]){
@@ -42,7 +42,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CSTRDLG_CSTRDLG
-    { 
+    {
         "CStrDlg::CStrDlg",
         (const uint8_t[]){
             0x48, 0x89, 0x5C, 0x24, 0x18,
@@ -62,7 +62,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CDIALOG_DOMODAL
-    { 
+    {
         "CDialog::DoModal",
         (const uint8_t[]){
             0x48, 0x89, 0x4C, 0x24, 0x08,
@@ -81,7 +81,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPCLASS_ENUMCHILDREN
-    { 
+    {
         "CMapClass::EnumChildren",
         (const uint8_t[]){
             0x48, 0x89, 0x5C, 0x24, 0x08,
@@ -100,7 +100,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPDOC_UPDATEALLVIEWS
-    { 
+    {
         "CMapDoc::UpdateAllViews",
         (const uint8_t[]){
             0x48, 0x89, 0x5C, 0x24, 0x18,
@@ -114,7 +114,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CRENDER_DRAWTEXT
-    { 
+    {
         "CRender::DrawText",
         (const uint8_t[]){
             0x48, 0x89, 0x5c, 0x24, 0x10,
@@ -130,7 +130,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPDOC_SETMODIFIEDFLAG
-    { 
+    {
         "CMapDoc::SetModifiedFlag",
         (const uint8_t[]){
             0x48, 0x89, 0x5C, 0x24, 0x08,
@@ -146,7 +146,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPFACE_SETTEXTURE
-    { 
+    {
         // 48 89 5c 24 18     56     57      41 56    48 81 ec 40 01 00 00        48 8b c2
         "CMapFace::SetTexture",
         (const uint8_t[]){
@@ -161,7 +161,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_SCRIPTDATAPTR
-    { 
+    {
         // 48 89 5c 24 18     56     57      41 56    48 81 ec 40 01 00 00        48 8b c2
         "ScriptDataPtr",
         (const uint8_t[]){
@@ -177,7 +177,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_GETHISTORY
-    { 
+    {
         // 48 89 5c 24 30  e8 ?? ?? ?? ??  48 8b 8f 88 0b 00 00
         "GetHistory",
         (const uint8_t[]){
@@ -193,7 +193,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPENTITY_CMAPENTITY
-    { 
+    {
         // 48 89 5c 24 10    48 89 4c 24 08    57    48 83 ec 20    48 8b f9    e8 ?? ?? ?? ??    90    48 8d 8f 90 01 00 00
         "CMapEntity::CMapEntity",
         (const uint8_t[]){
@@ -211,7 +211,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_AFXMESSAGEBOX
-    { 
+    {
         // 48 89 5c 24 08  48 89 74 24 10  57  48 83 ec 30  41 8b d8  8b fa  48 8b f1 e8 ?? ?? ?? ?? 44 8b cb
         "AfxMessageBox",
         (const uint8_t[]){
@@ -230,7 +230,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_MSG
-    { 
+    {
         // 48 8b c4  48 89 50 10  4c 89 40 18  4c 89 48 20  53  55  48 81 ec 48 02 00 00
         "Msg",
         (const uint8_t[]){
@@ -247,7 +247,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_VALVEALLOC
-    { 
+    {
         // 48 89 5c 24 08  57  48 83 ec 20  48 8b f9  e8 ?? ?? ?? ??  48 8b d8  48 85 c0  75 2b 66 0f 1f 44 00 00
         "ValveAlloc",
         (const uint8_t[]){
@@ -266,7 +266,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPSOLID_CLIPBYFACE
-    { 
+    {
         // 48 89 5c 24 08  57  48 83 ec 20  48 8b f9  e8 ?? ?? ?? ??  48 8b d8  48 85 c0  75 2b 66 0f 1f 44 00 00
         "CMapSolid::ClipByFace",
         (const uint8_t[]){
@@ -283,7 +283,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPSOLID_CMAPSOLID
-    { 
+    {
         // 48 89 5c 24 18  48 89 74 24 20  48 89 4c 24 08  57  48 83 ec 20  48 8b da  48 8b f9  e8 ?? ?? ?? ??  90  48 8d 05
         "CMapSolid::CMapSolid",
         (const uint8_t[]){
@@ -303,7 +303,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPSOLID_ADDPLANE
-    { 
+    {
         // 48 89 5c 24 08  48 89 6c 24 10  48 89 74 24 18  57  41 56  41 57  48 81 ec 80 03 00 00  48 8b da
         "CMapSolid:AddPlane",
         (const uint8_t[]){
@@ -321,7 +321,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CSOLIDFACES_MAKEFACE
-    { 
+    {
         // 48 89 5c 24 08  48 89 74 24 10  57  48 83 ec 20  8b 71 10  ba 01 00 00 00  48 8b d9  e8 ?? ?? ?? ??  8b 43 10 8b ce  2b c6  ff c8  48 69 f9 60 03 00 00
         "CSolidFaces::MakeFace",
         (const uint8_t[]){
@@ -344,7 +344,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPFACE_COPYFROM
-    { 
+    {
         // 48 89 5c 24 08  48 89 74 24 10  57  48 83 ec 20  8b 71 10  ba 01 00 00 00  48 8b d9  e8 ?? ?? ?? ??  8b 43 10 8b ce  2b c6  ff c8  48 69 f9 60 03 00 00
         "CMapFace::CopyFrom",
         (const uint8_t[]){
@@ -364,7 +364,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPSOLID_CREATEFROMPLANES
-    { 
+    {
         // 48 8b c4  4c 89 40 18  89 50 10  55  53  56  57  41 54  41 55  41 56  41 57  48 8d a8 a8 fe ff ff
         "CMapSolid::CreateFromPlanes",
         (const uint8_t[]){
@@ -386,7 +386,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPFACE_CREATEFACE
-    { 
+    {
         // 48 89 5c 24 10  48 89 6c 24 18  48 89 74 24 20  57  41 54  41 57  48 83 ec 20  48 8d b9 c8 01 00 00
         "CMapFace::CreateFace",
         (const uint8_t[]){
@@ -404,7 +404,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPFACE_INITIALIZETEXTUREAXES
-    { 
+    {
         // 48 89 5c 24 10  48 89 6c 24 18  57  48 83 ec 30  0f 29 74 24 20  0f 57 f6
         "CMapFace::InitializeTextureAxes",
         (const uint8_t[]){
@@ -420,7 +420,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CMAPFACE_GETORIENTATION
-    { 
+    {
         // 48 83 ec 58  f3 0f 10 89 90 01 00 00  0f 29 74 24 40
         "CMapFace::GetOrientation",
         (const uint8_t[]){
@@ -433,7 +433,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CHISTORY_MARKUNDOPOSITION
-    { 
+    {
         // 48 89 5c 24 10  55  56  57  41 54  41 55  41 56  41 57  48 83 ec 20  49 8b d8  48 8b ea  48 8b f1  48 8b 41 30
         "CHistory::MarkUndoPosition",
         (const uint8_t[]){
@@ -456,7 +456,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CHISTORY_KEEPNEW
-    { 
+    {
         // 48 89 5c 24 10  48 89 74 24 18  57  48 81 ec 40 01 00 00  48 83 39 00  41 0f b6 d8
         "CHistory::KeepNew",
         (const uint8_t[]){
@@ -472,7 +472,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_CHISTORY_KEEP
-    { 
+    {
         // 48 89 5c 24 10  48 89 74 24 18  57  48 81 ec 40 01 00 00  48 83 39 00  48 8b f2
         "CHistory::Keep",
         (const uint8_t[]){
@@ -485,6 +485,26 @@ static Pattern_t g_patterns[] = {
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxx",
         (void **)&CHistory_Keep
+    },
+#endif
+#ifdef USING_CHISTORY_UNDO
+    {
+        // 48 89 5c 24 08  48 89 74 24 10  57  48 83 ec 20  48 8b fa  49 8b f0  48 8b 11  48 8b d9  4c 8d 42 2c  48 85 d2
+        "CHistory::Undo",
+        (const uint8_t[]){
+            0x48, 0x89, 0x5C, 0x24, 0x08,
+            0x48, 0x89, 0x74, 0x24, 0x10,
+            0x57,
+            0x48, 0x83, 0xEC, 0x20,
+            0x48, 0x8B, 0xFA,
+            0x49, 0x8B, 0xF0,
+            0x48, 0x8B, 0x11,
+            0x48, 0x8B, 0xD9,
+            0x4C, 0x8D, 0x42, 0x2C,
+            0x48, 0x85, 0xD2
+        },
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        (void **)&CHistory_Undo
     },
 #endif
 #ifdef USING_WCKEYVALUES_GETVALUE
@@ -569,7 +589,7 @@ static Pattern_t g_patterns[] = {
 
     // hooks
 #ifdef USING_HOOK_LOADMENUW
-    { 
+    {
         "LoadMenuW",
         nullptr,
         nullptr,
@@ -578,7 +598,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_LOADACCELERATORSA
-    { 
+    {
         "LoadAcceleratorsA",
         nullptr,
         nullptr,
@@ -587,7 +607,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_ENABLEMENUITEM
-    { 
+    {
         "EnableMenuItem",
         nullptr,
         nullptr,
@@ -596,7 +616,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_CLIPPER3D_DRAWBRUSHEXTENTS
-    { 
+    {
         "Clipper3D::DrawBrushExtents",
         (const uint8_t[]){
             0x48, 0x89, 0x5c, 0x24, 0x10,
@@ -611,7 +631,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_SELECTION3D_RENDERTOOL2D
-    { 
+    {
         "Selection3D::RenderTool2D",
         (const uint8_t[]){
             0x48, 0x8b, 0xc4,
@@ -643,7 +663,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_RENDERUTILS_DRAWBOUNDSTEXT
-    { 
+    {
        "RenderUtils::DrawBoundsText",
        (const uint8_t[]){
            0x48, 0x8b, 0xc4,
@@ -660,7 +680,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_CSTATUSBAR_SETPANETEXT
-    { 
+    {
         "CStatusBar::SetPaneText",
         (const uint8_t[]){
             0x48, 0x89, 0x5C, 0x24, 0x10,
@@ -678,7 +698,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_CWND_SETFOCUS
-    { 
+    {
         "CWnd::SetFocus",
         (const uint8_t[]){
             0x40, 0x53,
@@ -693,7 +713,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_CMAPDOC_SETACTIVEMAPDOC
-    { 
+    {
         "CMapDoc::SetActiveMapDoc",
         (const uint8_t[]){
             0x40, 0x53,
@@ -708,7 +728,7 @@ static Pattern_t g_patterns[] = {
     },
 #endif
 #ifdef USING_HOOK_AFXWNDPROC
-    { 
+    {
         "AfxWndProc",
         (const uint8_t[]){
             0x48, 0x89, 0x5C, 0x24, 0x08,

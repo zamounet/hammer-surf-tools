@@ -20,6 +20,10 @@ CHistory_Keep_t CHistory_Keep;
 CHistory_MarkUndoPosition_t CHistory_MarkUndoPosition;
 #endif
 
+#ifdef USING_CHISTORY_UNDO
+CHistory_Undo_t CHistory_Undo;
+#endif
+
 #ifdef USING_CMAPDOC_UPDATEALLVIEWS
 CMapDoc_UpdateAllViews_t CMapDoc_UpdateAllViews;
 #endif

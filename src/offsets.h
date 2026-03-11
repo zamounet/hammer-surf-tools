@@ -11,6 +11,7 @@
 // struct offsets that are (hopefully) stable
 #define CEDITGAMECLASS_OFFSET_CLASS        0x030
 #define CLIPPER3D_OFFSET_PLANE_NORMAL      0x0FC
+#define CHISTORYTRACK_OFFSET_NAME          0x02C
 #define CMAINFRAME_OFFSET_OBJECTPROPERTIES 0x1F8
 #define CMAPCLASS_OFFSET_FACES             0x1A0
 #define CMAPCLASS_OFFSET_ORIGIN            0x050

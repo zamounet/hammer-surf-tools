@@ -271,4 +271,16 @@ typedef struct HAMMER_ALIGN CMapDoc {
 static_assert(offsetof(CMapDoc, m_pWorld)     ==   CMAPDOC_OFFSET_MPWORLD, "CMapDoc::m_pWorld offset wrong");
 static_assert(offsetof(CMapDoc, m_pSelection) == CMAPDOC_OFFSET_SELECTION, "CMapDoc::m_pSelection offset wrong");
 
+typedef struct HAMMER_ALIGN {
+    uint8_t padding[CHISTORYTRACK_OFFSET_NAME];
+    char szName[128];
+} CHistoryTrack; // incomplete sized type
+static_assert(offsetof(CHistoryTrack, szName) ==   CHISTORYTRACK_OFFSET_NAME, "CHistoryTrack::szName offset wrong");
+
+DEFINE_VECTOR(CHistoryTrack *, HistoryTrackPtrVector);
+typedef struct HAMMER_ALIGN {
+    CHistoryTrack *CurTrack;
+    HistoryTrackPtrVector Tracks;
+} CHistory; // incomplete sized type
+
 #endif // COMMON_H

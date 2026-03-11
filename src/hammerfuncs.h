@@ -14,18 +14,23 @@ extern CDialog_DoModal_t DoModal;
 #endif
 
 #ifdef USING_CHISTORY_KEEPNEW
-typedef void (*CHistory_KeepNew_t)(void *this_, CMapClass *pObject, bool bKeepChildren);
+typedef void (*CHistory_KeepNew_t)(CHistory *this_, CMapClass *pObject, bool bKeepChildren);
 extern CHistory_KeepNew_t CHistory_KeepNew;
 #endif
 
 #ifdef USING_CHISTORY_KEEP
-typedef void (*CHistory_Keep_t)(void *this_, CMapClass *pObject);
+typedef void (*CHistory_Keep_t)(CHistory *this_, CMapClass *pObject);
 extern CHistory_Keep_t CHistory_Keep;
 #endif
 
 #ifdef USING_CHISTORY_MARKUNDOPOSITION
-typedef void (*CHistory_MarkUndoPosition_t)(void *this_, const void* pSelection, const char *pszName, bool);
+typedef void (*CHistory_MarkUndoPosition_t)(CHistory *this_, const void* pSelection, const char *pszName, bool bFromOpposite);
 extern CHistory_MarkUndoPosition_t CHistory_MarkUndoPosition;
+#endif
+
+#ifdef USING_CHISTORY_UNDO
+typedef void (*CHistory_Undo_t)(CHistory *this_, MapClassPtrVector *pNewSelection, MapClassPtrVector *unk);
+extern CHistory_Undo_t CHistory_Undo;
 #endif
 
 #ifdef USING_CMAPDOC_UPDATEALLVIEWS
@@ -131,7 +136,7 @@ extern CMapClass_EnumChildren_t CMapClass_EnumChildren;
 #endif
 
 #ifdef USING_GETHISTORY
-typedef void *(*GetHistory_t)();
+typedef CHistory *(*GetHistory_t)();
 extern GetHistory_t GetHistory;
 #endif
 
