@@ -31,7 +31,7 @@ When you see ratings like `5/10` with the angle measure tools:
 
 - `5/10`  → "Sweet spot" (~50 degrees)
 - `0/10`  → Just barely surfable
-- `10/10` → Ranges from "probably too steep to be fun" all the way to "too steep to stay on the ramp"
+- `10/10` → Ranges from "probably too steep to be fun" all the way to "almost too steep to stay on the ramp"
 - This may be tweaked in the future.
 
 ## Notes
