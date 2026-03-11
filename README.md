@@ -1,6 +1,6 @@
 # Surf Tools for Hammer++ (Build 8870)
 
-A mod of Hammer++ with surf-related features.
+A mod of [Hammer++](https://ficool2.github.io/HammerPlusPlus-Website/index.html) with surf-related features.
 
 ## Features
 
@@ -12,7 +12,7 @@ A mod of Hammer++ with surf-related features.
 - When selecting a solid (not an entity or group), it will show the surf angle for each surfable face.
 
 ### Angle Fix
-- Requires compiling with `vbspplusplus.exe` from the Tools++ compilers (for `func_detail_illusionary`)
+- Requires compiling with `vbspplusplus.exe` from the [Tools++ compilers](https://ficool2.github.io/HammerPlusPlus-Website/tools.html) (for `func_detail_illusionary`)
 - **Usage**: Select worldbrush rotated ramps and press `Ctrl + Alt + Shift + A`.
 
 ### Trigger Generator
@@ -38,7 +38,8 @@ When you see ratings like `5/10` with the angle measure tools:
 - There’s also a context menu in **Tools → Surf Tools** and in the right-click context menu.
 
 ## Installation
-1. Extract `version.dll` to the directory where you have `hammerplusplus.exe`.
+1. Download the latest hammer-surf-tools_\*.zip file from https://github.com/fatalis/hammer-surf-tools/releases/latest
+2. Extract `version.dll` to the directory where you have `hammerplusplus.exe`.
 
 ### Linux
 - Use this environment variable:  
