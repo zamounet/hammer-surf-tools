@@ -2,11 +2,6 @@ name: build
 
 on:
   push:
-    tags:
-      - "v*.*.*"
-
-permissions:
-  contents: write
 
 jobs:
   build-windows:
@@ -17,39 +12,10 @@ jobs:
           submodules: true
 
       - name: Install MinGW-w64
-        run: sudo apt-get install -y mingw-w64 zip
+        run: sudo apt-get install -y mingw-w64
 
       - name: Configure CMake
         run: cmake -B build -S .
 
       - name: Build
         run: cmake --build build
-
-      - name: Get Hammer++ Build String
-        id: get_build
-        run: |
-          HAMMERPLUSPLUS_BUILD=$(grep "#define TARGET_HAMMERPLUSPLUS_BUILD" src/common.h | sed "s/.*\"\(.*\)\"/\1/")
-          echo "HAMMERPLUSPLUS_BUILD=$HAMMERPLUSPLUS_BUILD" >> $GITHUB_ENV
-
-      - name: Get Tag
-        id: rev
-        run: |
-          TAG=$(git describe --tags --dirty --always)
-          RELEASE_NAME="hammer-surf-tools_${TAG}_h++${HAMMERPLUSPLUS_BUILD}"
-          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
-
-      - name: Create ZIP
-        id: zip
-        run: |
-          echo "ZIP_NAME=${RELEASE_NAME}.zip" >> $GITHUB_ENV
-          zip -j "${RELEASE_NAME}.zip" build/version.dll README.md
-
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ env.RELEASE_NAME }}
-          files: ${{ env.ZIP_NAME }}
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
