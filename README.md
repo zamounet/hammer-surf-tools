@@ -36,10 +36,12 @@ When you see ratings like `5/10` with the angle measure tools:
 
 ## Notes
 - There’s also a context menu in **Tools → Surf Tools** and in the right-click context menu.
+- Support for Hammer++ builds beyond 8870 will be added when they're released.
 
 ## Installation
-1. Download the latest hammer-surf-tools_\*.zip file from https://github.com/fatalis/hammer-surf-tools/releases/latest
-2. Extract `version.dll` to the directory where you have `hammerplusplus.exe`.
+1. Make sure you have [Hammer++](https://ficool2.github.io/HammerPlusPlus-Website/index.html) Build 8870.
+2. Download the latest hammer-surf-tools_\*.zip file from https://github.com/fatalis/hammer-surf-tools/releases/latest
+3. Extract `version.dll` to the directory where you have `hammerplusplus.exe`.
 
 ### Linux
 - Use this environment variable:  
