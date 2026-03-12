@@ -40,10 +40,10 @@ typedef struct HAMMER_ALIGN { \
     int padding; \
 } Name
 
-DEFINE_VECTOR(CMapFace, FaceVector);
-DEFINE_VECTOR(CMapClass *, MapClassPtrVector); // CMapObjectList
-static_assert(sizeof(MapClassPtrVector) == 8 + 4 + 4 + 4 + 4,   "MapClassPtrVector size wrong");
-static_assert(offsetof(MapClassPtrVector, length) == 8 + 4 + 4, "MapClassPtrVector::length offset wrong");
+DEFINE_VECTOR(CMapFace, CSolidFaces);
+DEFINE_VECTOR(CMapClass *, CMapObjectList);
+static_assert(sizeof(CMapObjectList) == 8 + 4 + 4 + 4 + 4,   "CMapObjectList size wrong");
+static_assert(offsetof(CMapObjectList, length) == 8 + 4 + 4, "CMapObjectList::length offset wrong");
 
 typedef struct {
     float x;
@@ -204,7 +204,7 @@ typedef struct HAMMER_ALIGN CMapClass {
     void *CMapSolid_0x180;     // 0x180
     void *CMapSolid_0x188;     // 0x188
     CEditGameClass m_EditGameClass;      // 0x190 // CMapEntity - need a union covering CMapEntity / CMapSolid soon
-    FaceVector Faces;          // 0x1A0
+    CSolidFaces Faces;          // 0x1A0
 } CMapClass; // incomplete sized type
 static_assert(offsetof(CMapClass, m_Origin)      == CMAPCLASS_OFFSET_ORIGIN,      "CMapClass::m_Origin offset wrong");
 static_assert(offsetof(CMapClass, m_Render2DBox) == CMAPCLASS_OFFSET_RENDER2DBOX, "CMapClass::m_Render2DBox offset wrong");
@@ -212,7 +212,7 @@ static_assert(offsetof(CMapClass, Faces)         == CMAPCLASS_OFFSET_FACES,     
 
 // changed in hammer++, used to be just a vec3
 typedef struct HAMMER_ALIGN {
-    Vec3 vec;
+    Vec3 point;
     int padding;
     uint8_t padding2[VEC3POINTS_SIZE - sizeof(Vec3) - sizeof(int)];
 } Vec3Points;
@@ -235,7 +235,7 @@ typedef struct HAMMER_ALIGN {
     void *vtable;              // 0x00
     void *unk1;                // 0x08
     void *unk2;                // 0x10
-    MapClassPtrVector m_SelectionList; // 0x18
+    CMapObjectList m_SelectionList; // 0x18
 } CSelection; // incomplete sized type
 static_assert(offsetof(CSelection, m_SelectionList) == CSELECTION_OFFSET_SELECTIONLIST, "CSelection::m_SelectionList offset wrong");
 
@@ -264,10 +264,10 @@ typedef struct HAMMER_ALIGN {
 } CHistoryTrack; // incomplete sized type
 static_assert(offsetof(CHistoryTrack, szName) ==   CHISTORYTRACK_OFFSET_NAME, "CHistoryTrack::szName offset wrong");
 
-DEFINE_VECTOR(CHistoryTrack *, HistoryTrackPtrVector);
+DEFINE_VECTOR(CHistoryTrack *, HistoryTrackRefVector);
 typedef struct HAMMER_ALIGN {
     CHistoryTrack *CurTrack;
-    HistoryTrackPtrVector Tracks;
+    HistoryTrackRefVector Tracks;
 } CHistory; // incomplete sized type
 
 #endif // COMMON_H

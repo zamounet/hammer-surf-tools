@@ -24,7 +24,7 @@ void measure_render_2d(void *this_, void *pRender) {
         return;
     }
 
-    MapClassPtrVector *selected = CMapDoc_GetSelection(doc);
+    CMapObjectList *selected = CMapDoc_GetSelection(doc);
 
     if (selected->length != 1) {
         return;

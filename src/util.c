@@ -25,7 +25,7 @@ CMapClass *new_CMapSolid() {
     return ent;
 }
 
-MapClassPtrVector *CMapDoc_GetSelection(CMapDoc *doc) {
+CMapObjectList *CMapDoc_GetSelection(CMapDoc *doc) {
     return &doc->m_pSelection->m_SelectionList;
 }
 
@@ -56,7 +56,7 @@ bool CMapClass_IsWorldBrush(CMapClass *ent) {
     return false;
 }
 
-bool IsAllWorldBrushes(MapClassPtrVector *selected) {
+bool IsAllWorldBrushes(CMapObjectList *selected) {
     int count = 0;
     for (auto i = 0; i < selected->length; i++) {
         if (CMapClass_IsWorldBrush(selected->items[i])) {

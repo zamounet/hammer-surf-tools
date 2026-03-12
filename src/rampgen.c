@@ -164,7 +164,7 @@ static void rampgen(CMapClass *solid, float degrees, int segments, char directio
         CHistory_KeepNew(GetHistory(), items[i], false);
     }
 
-    MapClassPtrVector list;
+    CMapObjectList list;
     list.items = items;
     list.length = n_items;
     CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);
@@ -178,7 +178,7 @@ static CMapClass *get_selected_ramp() {
         return nullptr;
     }
 
-    MapClassPtrVector *selected = CMapDoc_GetSelection(doc);
+    CMapObjectList *selected = CMapDoc_GetSelection(doc);
 
     if (selected->length != 1) {
         AfxMessageBoxF(MB_OK, "Selection should contain exactly 1 item.");

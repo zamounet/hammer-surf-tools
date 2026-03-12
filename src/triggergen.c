@@ -11,7 +11,7 @@
 //     CMapClass *ent = new_CMapEntity();
 //     ent->m_EditGameClass.vtable->SetClass(&ent->m_EditGameClass, "info_target", false);
 //     char name[128];
-//     snprintf(name, sizeof(name), "vTopPoints[%d] %g %g %g\n", i, (double)pFace->Points[i].vec.x, (double)pFace->Points[i].vec.y, (double)pFace->Points[i].vec.z);
+//     snprintf(name, sizeof(name), "vTopPoints[%d] %g %g %g\n", i, (double)pFace->Points[i].point.x, (double)pFace->Points[i].point.y, (double)pFace->Points[i].point.z);
 //     ent->m_EditGameClass.vtable->SetKeyValue(&ent->m_EditGameClass, "targetname", name);
 //     ent->vtable->SetOrigin(ent, &vTopPoints[i]);
 //     doc->vtable->AddObjectToWorld(doc, ent, false);
@@ -42,7 +42,7 @@ CMapClass *CreateTriggerExtrudedFromFace(CMapFace *pTargetFace) {
     // bottom face (input face's location)
     Vec3 orig[nPoints];
     for (auto i = 0; i < nPoints; i++) {
-        orig[i] = pTargetFace->Points.items[i].vec;
+        orig[i] = pTargetFace->Points.items[i].point;
     }
     make_trigger_face(solid, orig, -nPoints);
 
@@ -55,7 +55,7 @@ CMapClass *CreateTriggerExtrudedFromFace(CMapFace *pTargetFace) {
 
     Vec3 top[nPoints];
     for (int i = 0; i < nPoints; i++) {
-        top[i] = pTargetFace->Points.items[i].vec;
+        top[i] = pTargetFace->Points.items[i].point;
         top[i].x += vOffset.x;
         top[i].y += vOffset.y;
         top[i].z += vOffset.z;
@@ -68,8 +68,8 @@ CMapClass *CreateTriggerExtrudedFromFace(CMapFace *pTargetFace) {
         auto next = (i + 1) % nPoints;
 
         Vec3 quad[4] = {
-            pTargetFace->Points.items[i].vec,
-            pTargetFace->Points.items[next].vec,
+            pTargetFace->Points.items[i].point,
+            pTargetFace->Points.items[next].point,
             top[next],
             top[i]
         };
@@ -119,7 +119,7 @@ void do_trigger_generator() {
         items[i] = ent;
     }
 
-    MapClassPtrVector list;
+    CMapObjectList list;
     list.items = items;
     list.length = stored_faces->length;
     CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);

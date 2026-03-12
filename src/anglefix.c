@@ -46,7 +46,7 @@ void do_anglefix() {
         return;
     }
 
-    MapClassPtrVector *selected = CMapDoc_GetSelection(doc);
+    CMapObjectList *selected = CMapDoc_GetSelection(doc);
     if (!selected->length) {
         AfxMessageBoxF(MB_OK, "Selection should contain at least 1 item.");
         return;

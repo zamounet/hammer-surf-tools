@@ -27,7 +27,7 @@ extern CHistory_MarkUndoPosition_t CHistory_MarkUndoPosition;
 #endif
 
 #ifdef USING_CHISTORY_UNDO
-typedef void (*CHistory_Undo_t)(CHistory *this_, MapClassPtrVector *pNewSelection, MapClassPtrVector *unk);
+typedef void (*CHistory_Undo_t)(CHistory *this_, CMapObjectList *pNewSelection, CMapObjectList *unk);
 extern CHistory_Undo_t CHistory_Undo;
 #endif
 
@@ -183,7 +183,7 @@ typedef enum {
     scSaveChanges = 0x400
 } SelectionCmd;
 
-typedef void (*CSelection_SelectObjectList_t)(void *this_, const MapClassPtrVector *pList, SelectionCmd cmd);
+typedef void (*CSelection_SelectObjectList_t)(void *this_, const CMapObjectList *pList, SelectionCmd cmd);
 extern CSelection_SelectObjectList_t CSelection_SelectObjectList;
 #endif
 
