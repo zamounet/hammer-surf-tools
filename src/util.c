@@ -56,6 +56,13 @@ bool CMapClass_IsWorldBrush(CMapClass *ent) {
     return false;
 }
 
+void CMapEntity_SetKVOrigin(CMapClass *ent) {
+    CEditGameClass *edit = &ent->m_EditGameClass;
+    char origin[KEYVALUE_MAX_VALUE_LENGTH];
+    snprintf(origin, sizeof(origin), "%g %g %g", (double)ent->m_Origin.x, (double)ent->m_Origin.y, (double)ent->m_Origin.z);
+    edit->vtable->SetKeyValue(edit, "origin", origin);
+}
+
 bool IsAllWorldBrushes(CMapObjectList *selected) {
     int count = 0;
     for (auto i = 0; i < selected->length; i++) {

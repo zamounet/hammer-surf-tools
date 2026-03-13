@@ -113,6 +113,7 @@ void *GetFaceEditSheet();
 
 bool CMapClass_IsSolid(CMapClass *ent);
 bool CMapClass_IsWorldBrush(CMapClass *ent);
+void CMapEntity_SetKVOrigin(CMapClass *ent);
 bool IsAllWorldBrushes(CMapObjectList *selected);
 
 typedef struct StoredFace {

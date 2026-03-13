@@ -77,14 +77,15 @@ CMapClass *CreateTriggerExtrudedFromFace(CMapFace *pTargetFace) {
         make_trigger_face(solid, quad, ARRAY_LEN(quad));
     }
 
-    solid->vtable->CalcBounds(solid, false);
-
     CMapClass *ent = new_CMapEntity();
-    ent->m_EditGameClass.vtable->SetClass(&ent->m_EditGameClass, "trigger_teleport", false);
-    ent->m_EditGameClass.vtable->SetKeyValue(&ent->m_EditGameClass, "spawnflags", "1"); // clients flag - needed for trigger_multiple only? forgot
-    // TODO: set last destination that was set manually
-    // ent->m_EditGameClass.vtable->SetKeyValue(&ent->m_EditGameClass, "target", "blah");
+    CEditGameClass *edit = &ent->m_EditGameClass;
+
+    edit->vtable->SetClass(edit, "trigger_teleport", false);
+    edit->vtable->SetKeyValue(edit, "spawnflags", "1"); // clients flag - needed for trigger_multiple only? forgot
     ent->vtable->AddChild(ent, solid);
+
+    ent->vtable->CalcBounds(ent, true);
+    CMapEntity_SetKVOrigin(ent);
 
     doc->vtable->AddObjectToWorld(doc, ent, nullptr);
 
