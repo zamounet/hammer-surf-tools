@@ -17,6 +17,9 @@ void log_msg(const char *fmt, ...);
 // an arbitrary cutoff for a very steep ramp that you can somewhat stay on
 #define UNSURF_NORMAL 0.28f
 
+#define KEYVALUE_MAX_KEY_LENGTH    80
+#define KEYVALUE_MAX_VALUE_LENGTH 512
+
 // menu ids
 #define CMD_CURVED_RAMP_GENERATOR 42069
 #define CMD_TRIGGER_GENERATOR     42068
