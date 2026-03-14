@@ -155,6 +155,13 @@ typedef struct {
     // need a union in CMapClass if this is defined further
 } CEditGameClass; // incomplete sized type
 
+typedef struct HAMMER_ALIGN {
+    uint8_t padding[CVISGROUP_OFFSET_NAME];
+    char m_szName[128];
+} CVisGroup; // incomplete sized type
+static_assert(offsetof(CVisGroup, m_szName) == CVISGROUP_OFFSET_NAME, "CVisGroup::m_szName offset wrong");
+DEFINE_VECTOR(CVisGroup *, CVisGroupList);
+
 typedef struct HAMMER_ALIGN CMapClass {
     CMapClassVTable *vtable;   // 0x00
     void *CMapAtom_0x08;       // 0x08
@@ -184,8 +191,6 @@ typedef struct HAMMER_ALIGN CMapClass {
 
     BoundingBox m_Render2DBox; // 0xA8 (0x18) CMapClass
     
-    // becomes CMapSolid somewhere here..
-
     void *CMapSolid_0xC8;      // 0xC8
     void *CMapSolid_0xD0;      // 0xD0
     void *CMapSolid_0xD8;      // 0xD8
@@ -193,19 +198,18 @@ typedef struct HAMMER_ALIGN CMapClass {
     void *CMapSolid_0xE8;      // 0xE8
     void *CMapSolid_0xF0;      // 0xF0
     void *CMapSolid_0xF8;      // 0xF8
-    void *CMapSolid_0x100;     // 0x100
-    void *CMapSolid_0x108;     // 0x108
-    void *CMapSolid_0x110;     // 0x110
-    void *CMapSolid_0x118;     // 0x118
-    void *CMapSolid_0x120;     // 0x120
-    void *CMapSolid_0x128;     // 0x128
+    CMapObjectList m_Children; // 0x100
+    CMapObjectList m_Dependents; // 0x118
     void *CMapSolid_0x130;     // 0x130
     void *CMapSolid_0x138;     // 0x138
-    void *CMapSolid_0x140;     // 0x140
-    void *CMapSolid_0x148;     // 0x148
-    void *CMapSolid_0x150;     // 0x150
-    void *CMapSolid_0x158;     // 0x158
-    void *CMapSolid_0x160;     // 0x160
+    int m_nID;                 // 0x140 object id
+    int m_nRenderFrame;        // 0x144 or this is PrevFrame and NextFrame is current
+    int m_nRenderNextFrame;    // 0x148
+    int padding2;              // 0x14C
+    CVisGroupList m_VisGroups; // 0x150
+    
+    // becomes CMapSolid somewhere here..
+
     void *CMapSolid_0x168;     // 0x168
     void *CMapSolid_0x170;     // 0x170
     void *CMapSolid_0x178;     // 0x178
