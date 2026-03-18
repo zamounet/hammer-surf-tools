@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir artifact
           cp build/version.dll artifact/
-          echo "\n\n" >> README.md
+          printf "\n\n" >> README.md
           cat extern/minhook/LICENSE.txt >> README.md
           cp README.md artifact/
 
