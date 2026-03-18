@@ -1,6 +1,6 @@
 #include "hotkeys.h"
 
-static const ACCEL hotkey1 = { FALT | FSHIFT, 'R', CMD_CURVED_RAMP_GENERATOR };
+static const ACCEL hotkey1 = { FALT | FSHIFT, 'R', CMD_RAMP_GENERATOR };
 static const ACCEL hotkey2 = { FALT | FSHIFT, 'A', CMD_ANGLEFIX};
 static const ACCEL hotkey3 = { FALT | FSHIFT, 'T', CMD_TRIGGER_GENERATOR };
 

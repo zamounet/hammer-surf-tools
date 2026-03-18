@@ -225,24 +225,24 @@ static void rotate_seg(CMapDoc *doc, CMapSolid *seg, CMapSolid *ref_ent, Angle a
     TransRotate(seg, &angles, &ref);
 }
 
-static void rotate_all_segs(CMapDoc *doc, CMapSolid **segments, int n_segments, Angle rotate_angle, float degrees) {
+static void rotate_all_segs(CMapDoc *doc, CMapSolid **segments, Angle rotate_angle, float degrees) {
     debug("rotate all segs");
 
     Vec3 ref;
-    BBoxTrueCenter((CMapClass **)segments, n_segments, &ref);
-    for (auto i = 0; i < n_segments; i++) {
+    BBoxTrueCenter((CMapClass **)segments, &ref);
+    for (auto i = 0; i < arrlen(segments); i++) {
         Euler angles = {{0.0f, 0.0f, 0.0f}};
         angles.v[rotate_angle] = degrees;
         TransRotate(segments[i], &angles, &ref);
     }
 }
 
-static void move_back(CMapDoc *doc, Vec3 *orig_pos, CMapSolid *seg, CMapSolid **segments, int n_segments, RampOrientation *ori) {
+static void move_back(CMapDoc *doc, Vec3 *orig_pos, CMapSolid *seg, CMapSolid **segments, RampOrientation *ori) {
     debug("move_back: flip");
     Vec3 ref = {{0.0f, 0.0f, 0.0f}};
     Vec3 scale = {{1.0f, 1.0f, 1.0f}};
     scale.v[ori->axis] = -1.0f;
-    for (auto i = 0; i < n_segments; i++) {
+    for (auto i = 0; i < arrlen(segments); i++) {;
         TransScale(segments[i], &ref, &scale);
     }
 
@@ -253,7 +253,7 @@ static void move_back(CMapDoc *doc, Vec3 *orig_pos, CMapSolid *seg, CMapSolid **
         orig_pos->z - seg->base.point.m_Origin.z,
     }};
 
-    for (auto i = 0; i < n_segments; i++) {
+    for (auto i = 0; i < arrlen(segments); i++) {;
         TransMove(segments[i], &moved);
     }
 }
@@ -388,12 +388,10 @@ void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generati
     }
 
     Vec3 orig_pos = solid->base.point.m_Origin; // copy
-
-    int n_segments = 0;
-    CMapSolid *segments[wish_segments + 1];
-
-    segments[0] = solid;
-    n_segments++;
+    
+    // int n_segments = 0;
+    CMapSolid **segments = nullptr;
+    arrput(segments, solid);
 
     for (int seg = 1; seg <= wish_segments; seg++) {
         // copy seg
@@ -405,8 +403,7 @@ void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generati
         doc->vtable->AddObjectToWorld(doc, new_seg, nullptr);
 #endif
 
-        segments[n_segments] = new_seg;
-        n_segments++;
+        arrput(segments, new_seg);
 
         // move the new seg to the side of the prev seg
         move_seg(doc, prev_seg, new_seg, ori);
@@ -417,29 +414,28 @@ void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generati
         rotate_seg(doc, new_seg, prev_seg, ori->rotate_angle, degrees, ori->pivot, top);
 
         // rotate all segs including new seg back so that the new seg is axis aligned again
-        rotate_all_segs(doc, segments, n_segments, ori->rotate_angle, -degrees);
+        rotate_all_segs(doc, segments, ori->rotate_angle, -degrees);
 
         // flip and move back to initial segment pos
         if (seg == wish_segments) {
-            move_back(doc, &orig_pos, new_seg, segments, n_segments, ori);
+            move_back(doc, &orig_pos, new_seg, segments, ori);
         }
     }
 
-    ASSERT(n_segments == wish_segments + 1);
-    for (auto i = 1; i < n_segments; i++) {
+    ASSERT(arrlen(segments) == wish_segments + 1);
+    for (auto i = 1; i < arrlen(segments); i++) {
 #ifndef RAMPGEN_DEBUG
         doc->vtable->AddObjectToWorld(doc, segments[i], nullptr);
 #endif
         CHistory_KeepNew(GetHistory(), (CMapClass *)segments[i], false);
     }
 
-    // TODO: do the select on IDOK click
-    // CMapObjectList list;
-    // list.items = segments;
-    // list.length = n_segments;
-    // CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);
-
     CMapDoc_SetModifiedFlag(doc, true);
+
+    if (ori->segment_list) {
+        arrfree(ori->segment_list);
+    }
+    ori->segment_list = segments;
 
     *generating = false;
 }

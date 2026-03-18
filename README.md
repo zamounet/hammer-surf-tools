@@ -12,8 +12,7 @@ A mod of [Hammer++](https://ficool2.github.io/HammerPlusPlus-Website/index.html)
 - When selecting a solid (not an entity or group), it will show the surf angle for each surfable face.
 
 ### Curved Ramp Generator
-- Generates a curved ramp by a start segment and inputting direction, degrees, and number of segments.
-- Convex ramps are not supported yet.  
+- Generates a curved ramp from a start segment and inputting curve, direction, degrees, and number of segments.
 - **Usage**: Select a start segment that’s not rotated, then press `Alt + Shift + R`.
 
 ### Trigger Generator

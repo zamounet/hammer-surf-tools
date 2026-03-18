@@ -18,6 +18,7 @@ typedef enum {
     DIR_PLUS = 1
 } AppendDirection;
 
+// TODO: only use in rampgenui
 typedef struct {
     CMapSolid *ramp;
     float degrees;
@@ -27,6 +28,7 @@ typedef struct {
     float segment_width;
 } RampGenCmd;
 
+// TODO: rename to RampGenOp or something
 typedef struct {
     Axis axis;
     AppendDirection direction;
@@ -41,6 +43,7 @@ typedef struct {
     Angle rotate_angle;
     float degrees;
     bool flip_edge; // whether to swap pivot/pivot_end when building the cut plane
+    CMapSolid **segment_list;
 } RampOrientation;
 
 void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generating);

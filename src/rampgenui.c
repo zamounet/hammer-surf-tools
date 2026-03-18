@@ -1,6 +1,7 @@
 #include "rampgen.h"
 #include "rampgenui.h"
 #include "util.h"
+#include "hooks.h"
 
 static RampGenCmd cmd;
 static HWND dlg;
@@ -9,6 +10,17 @@ static bool generating;
 
 static AppendDirection default_direction = DIR_PLUS;
 static char default_curve = 'l';
+
+static void commit() {
+    CMapDoc *doc = GetActiveMapDoc();
+    if (doc && orientation.segment_list) {
+        CMapObjectList list;
+        list.items = (CMapClass **)orientation.segment_list;
+        list.length = (int)arrlen(orientation.segment_list);
+        CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);
+        arrfree(orientation.segment_list);
+    }
+}
 
 static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
@@ -21,6 +33,7 @@ static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 
             SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETRANGE32, 0, 2048);
             SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETPOS32, 0, (int)cmd.segment_width);
+            // TODO: snap to 16 grid
             UDACCEL accel = { 0, 16 }; // 16 unit step - TODO: doesnt work with scroll?
             SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETACCEL, 1, (LPARAM)&accel);
 
@@ -84,6 +97,8 @@ static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
                 } else if (id == IDCANCEL || id == IDOK) {
                     if (id == IDCANCEL) {
                         rampgen_undo();
+                    } else if (id == IDOK) {
+                        commit();
                     }
                     DestroyWindow(hDlg);
                     dlg = nullptr;
@@ -146,6 +161,7 @@ void do_ramp_generator() {
 // ie when the user makes changes after a ramp gen, close
 void rampgen_close() {
     if (dlg && !generating) {
+        commit();
         DestroyWindow(dlg);
         dlg = nullptr;
     }

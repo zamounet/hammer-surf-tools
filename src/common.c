@@ -1,3 +1,13 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wconversion"
+#define STB_DS_IMPLEMENTATION
+#include <stb_ds.h>
+#pragma GCC diagnostic pop
+
+#define DVECTOR_IMPLEMENTATION
+#include <dvector.h>
+
 // TODO: cwd changes on windows and log goes to hammerplusplus/
 
 void log_msg(const char *fmt, ...) {

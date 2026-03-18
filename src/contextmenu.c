@@ -5,7 +5,7 @@
 
 static void add_menus(HMENU hPopup, int pos) {
     HMENU hSubMenu = CreatePopupMenu();
-    AppendMenuA(hSubMenu, MF_STRING, CMD_CURVED_RAMP_GENERATOR, "Curved Ramp Generator\tAlt+Shift+R");
+    AppendMenuA(hSubMenu, MF_STRING, CMD_RAMP_GENERATOR,        "Ramp Generator\tAlt+Shift+R");
     AppendMenuA(hSubMenu, MF_STRING, CMD_ANGLEFIX,              "Anglefix\tAlt+Shift+A");
     AppendMenuA(hSubMenu, MF_STRING, CMD_TRIGGER_GENERATOR,     "Trigger Generator\tAlt+Shift+T");
 
@@ -22,7 +22,7 @@ static void add_menus(HMENU hPopup, int pos) {
 UINT decide_menu_item_enabled(HMENU hMenu, UINT uIDEnableItem, UINT uEnable) {
     if (uEnable & MF_BYPOSITION) {
         UINT id = GetMenuItemID(hMenu, (int)uIDEnableItem);
-        if (id == CMD_CURVED_RAMP_GENERATOR || id == CMD_ANGLEFIX || id == CMD_TRIGGER_GENERATOR) {
+        if (id == CMD_RAMP_GENERATOR || id == CMD_ANGLEFIX || id == CMD_TRIGGER_GENERATOR) {
             return MF_ENABLED;
         }
     }
@@ -30,7 +30,7 @@ UINT decide_menu_item_enabled(HMENU hMenu, UINT uIDEnableItem, UINT uEnable) {
 }
 
 void menu_check_command(UINT cmd) {
-    if (cmd == CMD_CURVED_RAMP_GENERATOR) {
+    if (cmd == CMD_RAMP_GENERATOR) {
         do_ramp_generator();
     } else if (cmd == CMD_ANGLEFIX) {
         do_anglefix();

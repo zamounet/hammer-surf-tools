@@ -23,7 +23,7 @@ static inline void BBoxSize(const BoundingBox *bbox, Vec3 *out) {
     out->z = bbox->maxs.z - bbox->mins.z;
 }
 
-static inline void BBoxTrueCenter(CMapClass **ents, int count, Vec3 *outCenter) {
+static inline void BBoxTrueCenter(CMapClass **ents, Vec3 *outCenter) {
     // initialize min/max with the first entity's render box
     float minX = ents[0]->m_Render2DBox.mins.x;
     float minY = ents[0]->m_Render2DBox.mins.y;
@@ -33,7 +33,7 @@ static inline void BBoxTrueCenter(CMapClass **ents, int count, Vec3 *outCenter) 
     float maxZ = ents[0]->m_Render2DBox.maxs.z;
 
     // expand to include all remaining bounding boxes
-    for (auto i = 1; i < count; ++i) {
+    for (auto i = 1; i < arrlen(ents); i++) {
         if (ents[i]->m_Render2DBox.mins.x < minX) minX = ents[i]->m_Render2DBox.mins.x;
         if (ents[i]->m_Render2DBox.mins.y < minY) minY = ents[i]->m_Render2DBox.mins.y;
         if (ents[i]->m_Render2DBox.mins.z < minZ) minZ = ents[i]->m_Render2DBox.mins.z;

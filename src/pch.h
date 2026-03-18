@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include <dvector.h>
+#include <stb_ds.h>
 #include <MinHook.h>
 
 #define WIN32_LEAN_AND_MEAN

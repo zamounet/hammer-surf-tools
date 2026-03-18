@@ -26,7 +26,7 @@ void log_msg(const char *fmt, ...);
 #define KEYVALUE_MAX_VALUE_LENGTH 512
 
 // menu ids
-#define CMD_CURVED_RAMP_GENERATOR 32069 // stay below signed short range
+#define CMD_RAMP_GENERATOR        32069 // stay below signed short range
 #define CMD_TRIGGER_GENERATOR     32068
 #define CMD_ANGLEFIX              32067
 #define IDR_POPUPS                  182
