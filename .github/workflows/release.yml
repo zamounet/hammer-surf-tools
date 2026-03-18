@@ -42,6 +42,8 @@ jobs:
         id: zip
         run: |
           echo "ZIP_NAME=${RELEASE_NAME}.zip" >> $GITHUB_ENV
+          echo "\n\n" >> README.md
+          cat extern/minhook/LICENSE.txt >> README.md
           zip -j "${RELEASE_NAME}.zip" build/version.dll README.md
 
       - name: Create Release
