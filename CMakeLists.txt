@@ -43,6 +43,7 @@ add_library(hammer-surf-tools SHARED
 )
 
 target_link_libraries(hammer-surf-tools PRIVATE psapi minhook comctl32)
+target_include_directories(hammer-surf-tools PRIVATE extern/dvector)
 target_link_options(hammer-surf-tools PRIVATE
     -Wl,--export-all-symbols
 )
@@ -71,6 +72,7 @@ if(NOT DEFINED ENV{GITHUB_ACTIONS})
     )
 
     target_link_libraries(test-patterns PRIVATE minhook comctl32)
+    target_include_directories(test-patterns PRIVATE extern/dvector)
     target_compile_definitions(test-patterns PRIVATE TEST_PATTERNS)
     set_target_properties(test-patterns PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}"
