@@ -25,6 +25,8 @@ set(SOURCES
   src/contextmenu.c
   src/brushsync.c
   src/rampgen.c
+  src/rampgenui.c
+  src/rampgenui.rc
   src/measure.c
   src/anglefix.c
   src/triggergen.c
@@ -32,7 +34,6 @@ set(SOURCES
   src/hotkeys.c
   src/util.c
   src/offsets.c
-  src/rampgen.rc
 )
 
 # main dll (version.dll)
@@ -41,7 +42,7 @@ add_library(hammer-surf-tools SHARED
   ${SOURCES}
 )
 
-target_link_libraries(hammer-surf-tools PRIVATE psapi minhook)
+target_link_libraries(hammer-surf-tools PRIVATE psapi minhook comctl32)
 target_link_options(hammer-surf-tools PRIVATE
     -Wl,--export-all-symbols
 )
@@ -69,7 +70,7 @@ if(NOT DEFINED ENV{GITHUB_ACTIONS})
       ${SOURCES}
     )
 
-    target_link_libraries(test-patterns PRIVATE minhook)
+    target_link_libraries(test-patterns PRIVATE minhook comctl32)
     target_compile_definitions(test-patterns PRIVATE TEST_PATTERNS)
     set_target_properties(test-patterns PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}"

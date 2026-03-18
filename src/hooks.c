@@ -2,7 +2,7 @@
 #include "measure.h"
 #include "contextmenu.h"
 #include "hotkeys.h"
-#include "rampgen.h"
+#include "rampgenui.h"
 
 #ifdef USING_HOOK_AFXWNDPROC
 AfxWndProc_t orig_AfxWndProc;

@@ -53,10 +53,19 @@ DEFINE_VECTOR(CMapClass *, CMapObjectList);
 static_assert(sizeof(CMapObjectList) == 8 + 4 + 4 + 4 + 4,   "CMapObjectList size wrong");
 static_assert(offsetof(CMapObjectList, length) == 8 + 4 + 4, "CMapObjectList::length offset wrong");
 
-typedef struct {
-    float x;
-    float y;
-    float z;
+typedef enum {
+    AXIS_X,
+    AXIS_Y,
+    AXIS_Z,
+    AXIS_UNK,
+} Axis;
+typedef union {
+    struct {
+        float x;
+        float y;
+        float z;
+    };
+    float v[3];
 } Vec3;
 
 typedef struct HAMMER_ALIGN {
@@ -65,10 +74,18 @@ typedef struct HAMMER_ALIGN {
     Vec3 points[3];
 } Plane;
 
-typedef struct {
-    float yaw;
-    float pitch;
-    float roll;
+typedef enum {
+    YAW,
+    PITCH,
+    ROLL
+} Angle;
+typedef union {
+    struct {
+        float yaw;
+        float pitch;
+        float roll;
+    };
+    float v[3];
 } Euler;
 
 typedef struct HAMMER_ALIGN {
@@ -93,7 +110,7 @@ typedef enum {
 } DeleteFlags;
 typedef void (*Dtor_t)(void *this_, DeleteFlags flags);
 
-typedef char *(*CMapAtom_GetType_t)(void *);
+typedef char *(*CMapAtom_GetType_t)(void *this_);
 typedef void (*CMapPoint_SetOrigin_t)(void *this_, Vec3 *pos);
 typedef CMapClass *(*CMapClass_Copy_t)(void *this_, bool bUpdateDependencies);
 typedef CMapClass *(*CMapClass_CopyFrom_t)(void *this_, CMapClass *from, bool bUpdateDependencies);
@@ -105,50 +122,67 @@ typedef void (*CMapAtom_SetRenderColor_t)(void *this_, uint32_t color);
 typedef void (*CMapAtom_SetRenderColor2_t)(void *this_, uint8_t r, uint8_t g, uint8_t b);
 typedef bool (*CMapClass_UpdateObjectColor_t)(void *this_);
 typedef struct {
+    // CMapAtom
     CMapAtom_GetType_t GetType; // 0
-
-    void *CMapClass_01; void *CMapClass_02; void *CMapClass_03;
-
+    void *CMapClass_01;
+    void *CMapClass_02;
+    void *CMapClass_03;
     CMapAtom_SetRenderColor_t SetRenderColor;   // 4
     CMapAtom_SetRenderColor2_t SetRenderColor2; // 5
-
     void *CMapClass_06;
-
-    void *SetParent;  // 7
-    CMapAtom_GetParent_t GetParent;  // 8
-
-                                            void *CMapClass_09; void *CMapClass_10;
-    void *CMapClass_11; void *CMapClass_12; void *CMapClass_13; void *CMapClass_14; void *CMapClass_15;
+    void *SetParent; // 7
+    CMapAtom_GetParent_t GetParent; // 8
+    void *CMapClass_09;
+    void *CMapClass_10;
+    void *CMapClass_11;
+    void *CMapClass_12;
+    void *CMapClass_13;
+    void *CMapClass_14;
+    void *CMapClass_15;
     void *CMapClass_16;
+    void *DoTransform; // 17
 
-    void *DoTransform; // 17 CMapAtom
-    CMapPoint_SetOrigin_t SetOrigin;   // 18 CMapPoint (GetOrigin is compiled away)
-    Dtor_t Dtor;       // 19 CMapSolid
+    // CMapPoint
+    CMapPoint_SetOrigin_t SetOrigin;   // 18 (GetOrigin is compiled away)
 
-                                                                                    void *CMapClass_20;
-    void *CMapClass_21;
-
+    // CMapClass
+    Dtor_t Dtor;       // 19
+    void *CMapClass_20;
+    void *AddVisGroup; // 21
     CMapClass_UpdateObjectColor_t UpdateObjectColor; // 22
-
     CMapClass_AddChild_t AddChild;     // 23
     void *CMapClass_CopyChildrenFrom;  // 24
-
-                                                                                    void *CMapClass_25;
-    void *CMapClass_26; void *CMapClass_27;
-
-    void *GetParent2;    // CMapClass version? 28
-                                                                void *CMapClass_29; void *CMapClass_30;
-    void *CMapClass_31; void *CMapClass_32; void *CMapClass_33; void *CMapClass_34; void *CMapClass_35;
-    void *CMapClass_36; void *CMapClass_37; void *CMapClass_38; void *CMapClass_39; void *CMapClass_40;
+    void *RemoveAllChildren; // 25
+    void *RemoveChild; // 26
+    void *UpdateChild; // 27
+    void *CMapClass_GetParent; // 28
+    void *CMapclass_SetParent; // 29
+    void *ReplaceTargetName; // 30
+    void *OnAddToWorld; // 31
+    void *OnClone; // 32
+    void *OnPreClone; // 33
+    void *OnPrePaste; // 34
+    void *OnPaste; // 35
+    void *CMapClass_36;
+    void *CMapClass_37;
+    void *CMapClass_38;
+    void *CMapClass_39;
+    void *CMapClass_40;
     void *CMapClass_41;
-
     CMapClass_CalcBounds_t CalcBounds; // 42
-
-                                            void *CMapClass_43; void *CMapClass_44; void *CMapClass_45;
-    void *CMapClass_46; void *CMapClass_47; void *CMapClass_48; void *CMapClass_49;
-
+    void *SetLogicalPosition; // 43
+    void *GetLogicalPosition; // 44
+    void *CMapClass_45;
+    void *CMapClass_46;
+    void *CMapClass_47;
+    void *IsMapClass; // 48
+    void *CMapClass_49;
     CMapClass_Copy_t     Copy;         // 50
     CMapClass_CopyFrom_t *CopyFrom;    // 51
+    // ...
+    // void *IsGroup; // 60
+    // void *GetDescription // 71
+    // ... 82
 } CMapClassVTable;
 
 // in hammer++ there is no SetClass on CMapEntity
@@ -202,15 +236,8 @@ typedef struct HAMMER_ALIGN CMapClass {
     CMapPoint point;
 
     void *CMapClass_0x60;        // 0x060
-    void *CMapClass_0x68;        // 0x068
-    void *CMapClass_0x70;        // 0x070
-    void *CMapClass_0x78;        // 0x078
-    void *CMapClass_0x80;        // 0x080
-    void *CMapClass_0x88;        // 0x088
-    void *CMapClass_0x90;        // 0x090
-    void *CMapClass_0x98;        // 0x098
-    void *CMapClass_0xA0;        // 0x0A0
-
+    BoundingBox m_CullBox;       // 0x068
+    BoundingBox m_BoundingBox;   // 0x088
     BoundingBox m_Render2DBox;   // 0x0A8
 
     void *CMapClass_0xC8;        // 0x0C8
@@ -232,7 +259,12 @@ typedef struct HAMMER_ALIGN CMapClass {
     void *CMapClass_0x168;       // 0x168
     void *CMapClass_0x170;       // 0x170
     void *CMapClass_0x178;       // 0x178
-    void *CMapClass_0x180;       // 0x180
+    bool m_bVisible2D;           // 0x180
+    bool m_bVisible;             // 0x181
+    bool m_bVisGroupShown;       // 0x182
+    bool m_bVisGroupAutoShown;   // 0x183
+    bool m_bTemporary;           // 0x184
+    char CMapClass_0x184[3];     // 0x185
     void *CMapClass_0x188;       // 0x188
 } CMapClass;
 static_assert(sizeof(CMapClass) == CMAPCLASS_SIZE, "CMapClass size wrong");
@@ -269,15 +301,19 @@ DEFINE_VECTOR(Vec3Points, Vec3PointsVector);
 typedef struct HAMMER_ALIGN CMapFace {
     CMapClassVTable *vtable;                                                             // 0x000
     CMapAtom atom;                                                                       // 0x008
-    uint8_t padding[CMAPFACE_OFFSET_PLANE - CMAPATOM_SIZE];                              // 0x058
+    // start of TEXTURE struct, rest is unimplemented
+    void *pad2;                                                                          // 0x050
+    char texture[260]; // texture name MAX_PATH                                          // 0x058
+    uint8_t padding[CMAPFACE_OFFSET_PLANE - CMAPATOM_SIZE - 260 - 8];                    // 0x15C
     Plane plane;                                                                         // 0x190
     int pad;                                                                             // 0x1C4
     Vec3PointsVector Points;                                                             // 0x1C8
     uint8_t padding2[CMAPFACE_SIZE - CMAPFACE_OFFSET_POINTS - sizeof(Vec3PointsVector)]; // 0x1E0
 } CMapFace; // 0x360
-static_assert(offsetof(CMapFace, plane)  == CMAPFACE_OFFSET_PLANE,  "CMapFace::plane offset wrong");
-static_assert(offsetof(CMapFace, Points) == CMAPFACE_OFFSET_POINTS, "CMapFace::Points offset wrong");
-static_assert(sizeof(CMapFace)           == CMAPFACE_SIZE,          "CMapFace size wrong");
+static_assert(offsetof(CMapFace, plane)   == CMAPFACE_OFFSET_PLANE,   "CMapFace::plane offset wrong");
+static_assert(offsetof(CMapFace, Points)  == CMAPFACE_OFFSET_POINTS,  "CMapFace::Points offset wrong");
+static_assert(offsetof(CMapFace, texture) == CMAPFACE_OFFSET_TEXTURE, "CMapFace::texture offset wrong");
+static_assert(sizeof(CMapFace)            == CMAPFACE_SIZE,           "CMapFace size wrong");
 
 typedef struct HAMMER_ALIGN {
     void *vtable;                   // 0x00

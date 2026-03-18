@@ -28,6 +28,7 @@
 #define CVISGROUP_OFFSET_NAME              0x029
 #define CMAPFACE_OFFSET_PLANE              0x190
 #define CMAPFACE_OFFSET_POINTS             0x1C8
+#define CMAPFACE_OFFSET_TEXTURE            0x058
 #define CMAPENTITY_OFFSET_EDITGAMECLASS    0x190
 #define CMAPENTITY_OFFSET_FLAGS            0x254 // used to set placeholder (flag 1 - non-brush entity flag)
 

@@ -74,7 +74,7 @@ void do_anglefix() {
         Vec3 *normal = &surfable_face->plane.normal;
 
         Euler euler;
-        Vec3 normal_inv = {-normal->x, -normal->y, -normal->z}; // TODO: why needed?
+        Vec3 normal_inv = {{-normal->x, -normal->y, -normal->z}}; // TODO: why needed?
         to_euler(&normal_inv, &euler);
 
         float theta = euler.yaw;
@@ -95,7 +95,7 @@ void do_anglefix() {
 
         float x = dist * cosf(theta);
         float y = dist * sinf(theta);
-        Vec3 displacement = {x, y, 0.0f};
+        Vec3 displacement = {{x, y, 0.0f}};
 
         // copy before mutating original brush
         CHistory_Keep(GetHistory(), (CMapClass *)item);

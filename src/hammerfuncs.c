@@ -37,6 +37,18 @@ CMapFace_CreateFace_t CMapFace_CreateFace;
 #endif
 
 #ifdef USING_CMAPFACE_GETORIENTATION
+static const char *FaceOrientation_str[] = {
+    "FLOOR",
+    "CEILING",
+    "NORTH_WALL",
+    "SOUTH_WALL",
+    "EAST_WALL",
+    "WEST_WALL",
+    "INVALID"
+};
+const char *GetFaceOrientationStr(FaceOrientation orientation) {
+    return FaceOrientation_str[orientation];
+}
 CMapFace_GetOrientation_t CMapFace_GetOrientation;
 #endif
 
@@ -58,6 +70,10 @@ CMapSolid_CMapSolid_t CMapSolid_CMapSolid;
 
 #ifdef USING_CMAPSOLID_CLIPBYFACE
 CMapSolid_ClipByFace_t CMapSolid_ClipByFace;
+#endif
+
+#ifdef USING_CMAPSOLID_SPLIT
+CMapSolid_Split_t CMapSolid_Split;
 #endif
 
 #ifdef USING_CMAPSOLID_CREATEFROMPLANES
@@ -94,6 +110,10 @@ Msg_t Msg;
 
 #ifdef USING_CMAPDOC_SETMODIFIEDFLAG
 CMapDoc_SetModifiedFlag_t CMapDoc_SetModifiedFlag;
+#endif
+
+#ifdef USING_CMAPDOC_DELETEOBJECT
+CMapDoc_DeleteObject_t CMapDoc_DeleteObject;
 #endif
 
 #ifdef USING_VALVEALLOC

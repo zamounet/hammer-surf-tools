@@ -6,49 +6,343 @@
 
 // TODO: esc -> close
 
-// #define RAMPGEN_DEBUG
-static RampGenCmd cmd;
-static HWND dlg;
-static bool generating;
-
-static char orientation_to_axis(FaceOrientation ori) {
-    if (ori == FACE_ORIENTATION_SOUTH_WALL || ori == FACE_ORIENTATION_NORTH_WALL) {
-        return 'x';
-    }
-    if (ori == FACE_ORIENTATION_EAST_WALL || ori == FACE_ORIENTATION_WEST_WALL) {
-        return 'y';
-    }
-    return 'z';
+static void debug(const char *msg) {
+#ifdef RAMPGEN_DEBUG
+    CMapDoc_UpdateAllViews(GetActiveMapDoc(), MAPVIEW_UPDATE_OBJECTS | MAPVIEW_RENDER_NOW, nullptr);
+    AfxMessageBoxF(MB_OK, msg);
+#endif
 }
 
-static char ramp_orientation(CMapSolid *solid) {
-    // find best surfable face
-    CMapFace *best = nullptr;
-    float best_normal_delta;
-    char best_axis;
+static void box_bottom_corner(const BoundingBox *bbox, BoxCorner corner, Vec3 *out) {
+    float z = bbox->mins.z;
+
+    if (corner == SW) {
+        *out = (Vec3){{ bbox->mins.x, bbox->mins.y, z }};
+    } else if (corner == SE) {
+        *out = (Vec3){{ bbox->maxs.x, bbox->mins.y, z }};
+    } else if (corner == NE) {
+        *out = (Vec3){{ bbox->maxs.x, bbox->maxs.y, z }};
+    } else /* if (corner == NW) */ {
+        *out = (Vec3){{ bbox->mins.x, bbox->maxs.y, z }};
+    }
+}
+
+static void vertical_plane_from_bbox(const BoundingBox *bbox, RampOrientation *ori, Plane *out_plane) {
+    BoxCorner first  = ori->flip_edge ? ori->pivot      : ori->pivot_end;
+    BoxCorner second = ori->flip_edge ? ori->pivot_end  : ori->pivot;
+
+    Vec3 p0, p1, p2;
+    box_bottom_corner(bbox, first, &p0);
+    box_bottom_corner(bbox, second, &p1);
+
+    // third point above edge
+    p2 = (Vec3){{ p0.x, p0.y, bbox->maxs.z }};
+
+    // direction along edge
+    Vec3 dir = {{
+        p1.x - p0.x,
+        p1.y - p0.y,
+        0.0f
+    }};
+
+    // perpendicular vertical plane normal
+    Vec3 normal = {{
+        -dir.y,
+        dir.x,
+        0.0f
+    }};
+
+    if (!Vec3Normalize(&normal)) {
+        normal = (Vec3){{1.0f, 0.0f, 0.0f}};
+    }
+
+    float d = normal.x*p0.x + normal.y*p0.y;
+
+    out_plane->normal = normal;
+    out_plane->dist = d;
+    out_plane->points[0] = p0;
+    out_plane->points[1] = p1;
+    out_plane->points[2] = p2;
+}
+
+static Axis orientation_to_axis(FaceOrientation ori) {
+    if (ori == FACE_ORIENTATION_SOUTH_WALL || ori == FACE_ORIENTATION_NORTH_WALL) {
+        return AXIS_X;
+    }
+    if (ori == FACE_ORIENTATION_EAST_WALL || ori == FACE_ORIENTATION_WEST_WALL) {
+        return AXIS_Y;
+    }
+    return AXIS_Z;
+}
+
+bool ramp_orientation(RampGenCmd *cmd, RampOrientation *out_orientation) {
     const float ideal_normal = 0.64f;
+    CMapSolid *solid = cmd->ramp;
+    float best_normal_delta;
+    int best_face = -1;
 
     for (auto i = 0; i < solid->Faces.length; i++) {
         CMapFace *face = &solid->Faces.items[i];
+        FaceOrientation orientation = CMapFace_GetOrientation(face);
         float znorm = fabsf(face->plane.normal.z);
         float delta = fabsf(znorm - ideal_normal);
-        char axis = orientation_to_axis(CMapFace_GetOrientation(face));
-        if ((!best || delta < best_normal_delta) && axis != 'z' && znorm < SURF_NORMAL && znorm > 0.0f) {
-            best = face;
+        Axis axis = orientation_to_axis(orientation);
+        if ((best_face == -1 || delta < best_normal_delta) && axis != AXIS_Z && znorm < SURF_NORMAL && znorm > 0.0f) {
+            best_face = i;
             best_normal_delta = delta;
-            best_axis = axis;
         }
     }
 
-    if (best) {
-        return best_axis;
+    if (best_face != -1) {
+        CMapFace *face = &solid->Faces.items[best_face];
+        FaceOrientation orientation = CMapFace_GetOrientation(face);
+        Axis axis = orientation_to_axis(orientation);
+        char curve = cmd->curve;
+        AppendDirection direction = cmd->direction;
+
+        out_orientation->axis = axis;
+        out_orientation->direction = direction;
+        out_orientation->orientation = orientation;
+        out_orientation->curve = curve;
+
+        int dir = (direction == DIR_PLUS) ? +1 : -1;
+        int facing = (orientation == FACE_ORIENTATION_NORTH_WALL
+                   || orientation == FACE_ORIENTATION_EAST_WALL) ? +1 : -1;
+
+        int turn = (curve == 'l') - (curve == 'r'); // +1 for l, -1 for r, 0 otherwise
+        int axis_sign = (axis == AXIS_X) ? +1 : -1;
+        int sign = dir * facing * axis_sign;
+        bool convex = (curve == 'd') || (turn * sign > 0);
+        out_orientation->convex = convex;
+        out_orientation->sign = sign;
+
+        float degrees = cmd->degrees;
+        if (curve == 'l' || curve == 'r') {
+            degrees *= (float)sign;
+        }
+
+        out_orientation->rotate_angle = ROLL;
+        if (curve == 'u' || curve == 'd') {
+            out_orientation->rotate_angle = axis == AXIS_X ? PITCH : YAW;
+            // For up/down curves, Hammer's sign needs to depend on append
+            // direction so that DIR_MINUS ramps flip the sign relative to
+            // DIR_PLUS while keeping the same magnitude.
+            degrees = -degrees * (float)dir;
+        }
+        out_orientation->degrees = degrees;
+
+        // Precompute whether the edge used to build the cut plane should be
+        // flipped (swap pivot/pivot_end) so that the chosen Split side stays
+        // consistent across orientations/directions.
+        bool flip_edge = false;
+        if (convex && curve == 'r') {
+            // For left/right convex curves we always flip.
+            flip_edge = true;
+        } else if (convex && curve == 'd' && sign > 0) {
+            // For convex down curves, only flip on the "positive" sign cases.
+            flip_edge = true;
+        }
+        out_orientation->flip_edge = flip_edge;
+
+        // log_msg("axis:%d deg:%g rotate_angle:%d ori:%s dir:%d facing:%d turn:%d curve:%c convex:%d\n",
+        //         axis, (double)degrees, out_orientation->rotate_angle,
+        //         GetFaceOrientationStr(orientation), dir, facing, turn, curve, convex);
+
+        const BoxCorner pivot_table[4][2] = {
+            // minus, plus
+            { NW, NE }, // FACE_ORIENTATION_NORTH_WALL
+            { SW, SE }, // FACE_ORIENTATION_SOUTH_WALL
+            { SE, NE }, // FACE_ORIENTATION_EAST_WALL
+            { SW, NW }, // FACE_ORIENTATION_WEST_WALL
+        };
+
+        const BoxCorner pivot_end_table[4][2] = {
+            { SW, SE }, // FACE_ORIENTATION_NORTH_WALL
+            { NW, NE }, // FACE_ORIENTATION_SOUTH_WALL
+            { SW, NW }, // FACE_ORIENTATION_EAST_WALL
+            { SE, NE }, // FACE_ORIENTATION_WEST_WALL
+        };
+
+        // convex ramps pivot on the high end of the ramp
+        // concave pivot on the short end
+        bool c = convex && curve != 'd';
+        const BoxCorner (*pt)[2] = c ? pivot_end_table : pivot_table;
+        const BoxCorner (*pet)[2] = c ? pivot_table : pivot_end_table;
+
+        int ori = (int)orientation - FACE_ORIENTATION_NORTH_WALL;
+        out_orientation->pivot = pt[ori][direction];
+        out_orientation->pivot_end = pet[ori][direction];
+        out_orientation->pivot_opposite = pt[ori][!direction];
+        out_orientation->pivot_opposite_end = pet[ori][!direction];
+
+        return true;
     }
 
-    return '?';
+    return false;
 }
 
-static void undo() {
+static void resize_start_seg(CMapDoc * doc, CMapSolid *solid, RampOrientation *ori, float segment_width) {
+    debug("scale seg");
+
+    Vec3 orig_size;
+    BBoxSize(&solid->base.m_Render2DBox, &orig_size);
+
+    // scale the start seg
+    float factor = segment_width / orig_size.v[ori->axis];
+    Vec3 ref;
+    box_bottom_corner(&solid->base.m_Render2DBox, ori->pivot_opposite, &ref);
+    Vec3 scale = {{1.0f, 1.0f, 1.0f}};
+    scale.v[ori->axis] = factor;
+
+    TransScale(solid, &ref, &scale);
+}
+
+static void move_seg(CMapDoc *doc, CMapSolid *prev_seg, CMapSolid *seg, RampOrientation *ori) {
+    debug("move seg");
+
+    Vec3 size;
+    BBoxSize(&prev_seg->base.m_Render2DBox, &size); // or use the selected solid's size
+
+    Vec3 delta = {{0.0f, 0.0f, 0.0f}};
+    delta.v[ori->axis] = ori->direction == DIR_PLUS ? size.v[ori->axis] : -size.v[ori->axis];
+    TransMove(seg, &delta);
+}
+
+static void rotate_seg(CMapDoc *doc, CMapSolid *seg, CMapSolid *ref_ent, Angle angle, float degrees, BoxCorner pivot, bool top) {
+    debug("rotate seg");
+
+    Vec3 ref;
+    box_bottom_corner(&ref_ent->base.m_Render2DBox, pivot, &ref);
+    if (top) {
+        ref.z = ref_ent->base.m_Render2DBox.maxs.z;
+    }
+#ifdef RAMPGEN_DEBUG
+    debug_point(1, &ref, 0x00ff00);
+#endif
+
+    Euler angles = {{0.0f, 0.0f, 0.0f}};
+    angles.v[angle] = degrees;
+    TransRotate(seg, &angles, &ref);
+}
+
+static void rotate_all_segs(CMapDoc *doc, CMapSolid **segments, int n_segments, Angle rotate_angle, float degrees) {
+    debug("rotate all segs");
+
+    Vec3 ref;
+    BBoxTrueCenter((CMapClass **)segments, n_segments, &ref);
+    for (auto i = 0; i < n_segments; i++) {
+        Euler angles = {{0.0f, 0.0f, 0.0f}};
+        angles.v[rotate_angle] = degrees;
+        TransRotate(segments[i], &angles, &ref);
+    }
+}
+
+static void move_back(CMapDoc *doc, Vec3 *orig_pos, CMapSolid *seg, CMapSolid **segments, int n_segments, RampOrientation *ori) {
+    debug("move_back: flip");
+    Vec3 ref = {{0.0f, 0.0f, 0.0f}};
+    Vec3 scale = {{1.0f, 1.0f, 1.0f}};
+    scale.v[ori->axis] = -1.0f;
+    for (auto i = 0; i < n_segments; i++) {
+        TransScale(segments[i], &ref, &scale);
+    }
+
+    debug("move_back: move");
+    Vec3 moved = {{
+        orig_pos->x - seg->base.point.m_Origin.x,
+        orig_pos->y - seg->base.point.m_Origin.y,
+        orig_pos->z - seg->base.point.m_Origin.z,
+    }};
+
+    for (auto i = 0; i < n_segments; i++) {
+        TransMove(segments[i], &moved);
+    }
+}
+
+static CMapSolid *cut_convex_seg(CMapDoc *doc, CMapSolid *solid, RampOrientation *ori) {
+    Plane plane;
+    vertical_plane_from_bbox(&solid->base.m_Render2DBox, ori, &plane);
+#ifdef CONVEX_DEBUG
+    debug_point(502, &plane.points[0], 0x00ffff);
+    debug_point(502, &plane.points[1], 0x00ffff);
+    debug_point(503, &plane.points[2], 0x00ffff);
+#endif
+
+    float degrees = ori->degrees;
+    BoxCorner pivot = ori->pivot;
+    Angle rotate_angle = ori->rotate_angle;
+    bool top = ori->curve == 'd';
+
+    degrees /= 2.0f;
+
+    debug("cut_convex_seg");
+    rotate_seg(doc, solid, solid, rotate_angle, -degrees, pivot, top);
+
+#ifdef CONVEX_DEBUG
+    debug("convex: cut 1");
+#endif
+    CMapSolid *cut = nullptr;
+    CMapSolid_Split(solid, &plane, nullptr, &cut);
+    if (!cut) {
+        AfxMessageBoxF(MB_OK, "Convex: Cut 1 failed");
+        return nullptr;
+    }
+#ifdef RAMPGEN_DEBUG
+    doc->vtable->AddObjectToWorld(doc, cut, nullptr);
+#endif
+    CMapDoc_DeleteObject(doc, (CMapClass *)solid);
+
+#ifdef CONVEX_DEBUG
+    debug("convex: rotate back");
+#endif
+    rotate_seg(doc, cut, cut, rotate_angle, degrees, pivot, top);
+
+    Vec3 scale = {{1.0f, 1.0f, 1.0f}};
+    scale.v[ori->axis] = -1.0f;
+    Vec3 center;
+    BBoxCenter(&cut->base.m_Render2DBox, &center);
+#ifdef CONVEX_DEBUG
+    debug("convex: flip");
+#endif
+    TransScale(cut, &center, &scale);
+
+#ifdef CONVEX_DEBUG
+    debug("convex: rotate 2");
+#endif
+    rotate_seg(doc, cut, cut, rotate_angle, -degrees, pivot, top);
+
+#ifdef CONVEX_DEBUG
+    debug("convex: cut 2");
+#endif
+    CMapSolid *cut2 = nullptr;
+    CMapSolid_Split(cut, &plane, nullptr, &cut2);
+    if (!cut2) {
+        AfxMessageBoxF(MB_OK, "Convex: Cut 2 failed");
+        return nullptr;
+    }
+#ifdef RAMPGEN_DEBUG
+    doc->vtable->AddObjectToWorld(doc, cut2, nullptr);
+    CMapDoc_DeleteObject(doc, (CMapClass *)cut);
+#else
+    cut->base.vtable->Dtor(cut, DELETE_OBJ);
+#endif
+
+#ifdef CONVEX_DEBUG
+    debug("convex: rotate 3");
+#endif
+    rotate_seg(doc, cut2, cut2, rotate_angle, degrees, pivot, top);
+    cut2->base.m_bTemporary = false; // required for CHistory_Keep*
+#ifndef RAMPGEN_DEBUG
+    doc->vtable->AddObjectToWorld(doc, cut2, nullptr);
+#endif
+    CHistory_KeepNew(GetHistory(), (CMapClass *)cut2, false);
+
+    return cut2;
+}
+
+void rampgen_undo() {
     CHistory *history = GetHistory();
+
+    // TODO: allow "Selection" undos and dont rampgen_close on them
 
     // should always be true since we have rampgen_close
     ASSERT(!strcmp(history->CurTrack->szName, "Ramp Generation"));
@@ -61,179 +355,96 @@ static void undo() {
     // RemoveDead, UpdateAllDependencies
 }
 
-// static void rampgen(CMapClass *solid, float degrees, int segments, char direction, float segment_width) {
-static void rampgen(bool initial) {
+void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generating) {
     CMapDoc *doc = GetActiveMapDoc();
     ASSERT(doc);
 
     // ignore CHistory_MarkUndoPosition hook calls that CHistory_Undo does
     // otherwise, rampgen_close would trigger on undo()
-    generating = true;
+    *generating = true;
 
     if (!initial) {
-        undo();
+        rampgen_undo();
+        ASSERT(ramp_orientation(cmd, ori));
     }
 
-    CMapSolid *solid = cmd.ramp;
-    float degrees = cmd.degrees;
-
-    char axis = ramp_orientation(solid);
-    ASSERT(axis == 'x' || axis == 'y');
-    if (cmd.direction == 'r') {
-        degrees = -degrees;
-    }
+    CMapSolid *solid = cmd->ramp;
+    int wish_segments = cmd->segments;
+    float segment_width = cmd->segment_width;
 
     CHistory_MarkUndoPosition(GetHistory(), CMapDoc_GetSelection(doc), "Ramp Generation", false);
     CSelection_SelectObjectList(doc->m_pSelection, nullptr, scClear);
     CHistory_Keep(GetHistory(), (CMapClass *)solid);
 
-    Vec3 orig_size;
-    BBoxSize(&solid->base.m_Render2DBox, &orig_size);
+    // scale start seg to new width
+    resize_start_seg(doc, solid, ori, segment_width);
 
-    float factor = cmd.segment_width / (axis == 'x' ? orig_size.x : orig_size.y);
-    BoundingBox *bbox = &solid->base.m_Render2DBox;
-    // TODO: make a func for this
-    Vec3 ref;
-    if (axis == 'x') {
-        ref = (Vec3){
-            cmd.direction == 'l' ? bbox->maxs.x : bbox->mins.x,
-            bbox->mins.y,
-            bbox->mins.z
-        };
-    } else {
-        ref = (Vec3){
-            bbox->mins.x,
-            cmd.direction == 'l' ? bbox->maxs.y : bbox->mins.y,
-            bbox->mins.z
-        };
-    }
-    Vec3 scale = {1.0f, 1.0f, 1.0f};
-    if (axis == 'x') {
-        scale.x = factor;
-    } else {
-        scale.y = factor;
-    }
-
-    TransScale(solid, &ref, &scale);
-
-    // Vec3 orig_size;
-    BBoxSize(&solid->base.m_Render2DBox, &orig_size);
-    Vec3 orig_pos = solid->base.point.m_Origin;
-    // log_msg("orig_pos %g %g %g\n", (double)orig_pos.x, (double)orig_pos.y, (double)orig_pos.z);
-
-
-    int n_items = 0;
-    CMapSolid *items[cmd.segments + 1];
-
-    items[0] = solid;
-    n_items++;
-
-    for (int seg = 1; seg <= cmd.segments; seg++) {
-        CMapSolid *prev_item = items[seg-1];
-        CMapSolid *copy = (CMapSolid *)prev_item->base.vtable->Copy(prev_item, FALSE);
-
-        items[n_items] = copy;
-        n_items++;
-
-        BoundingBox *bbox_prev = &prev_item->base.m_Render2DBox;
-
-        Vec3 size;
-        BBoxSize(bbox_prev, &size); // or use the selected solid's size
-        // log_msg("seg %d: %g %g %g -> %g %g %g\n", seg, (double)orig_size.x, (double)orig_size.y, (double)orig_size.z,
-                // (double)size.x, (double)size.y, (double)size.z);
-        // ASSERT((int)size.x == (int)orig_size.x && (int)size.y == (int)orig_size.y && (int)size.z == (int)orig_size.z);
-
-        // move new seg
-        Vec3 delta = {0.0f, 0.0f, 0.0f};
-        if (axis == 'x') {
-            delta.x = cmd.direction == 'l' ? size.x : -size.x;
-        } else {
-            delta.y = cmd.direction == 'l' ? size.y : -size.y;
-        }
-        TransMove(copy, &delta);
-#ifdef RAMPGEN_DEBUG
-        Sleep(500);
-#endif
-
-        // rotate new seg on axis by bottom of previous seg
-        Vec3 ref;
-        if (axis == 'x') {
-            ref = (Vec3){
-                cmd.direction == 'l' ? bbox_prev->maxs.x : bbox_prev->mins.x,
-                bbox_prev->mins.y,
-                bbox_prev->mins.z
-            };
-        } else {
-            ref = (Vec3){
-                bbox_prev->mins.x,
-                cmd.direction == 'l' ? bbox_prev->maxs.y : bbox_prev->mins.y,
-                bbox_prev->mins.z
-            };
-        }
-
-        Euler angles = {0.0f, 0.0f, 0.0f};
-        if (axis == 'x') {
-            angles.pitch = degrees;
-        } else {
-            angles.yaw = degrees;
-        }
-        TransRotate(copy, &angles, &ref);
-#ifdef RAMPGEN_DEBUG
-        Sleep(500);
-#endif
-
-        // rotate all segs including new seg back so that the new seg is axis aligned for next seg to copy and move
-        BBoxTrueCenter((CMapClass *)*items, n_items, &ref);
-        for (auto item_idx = 0; item_idx < n_items; item_idx++) {
-            Euler angles = {0.0f, 0.0f, 0.0f};
-            if (axis == 'x') {
-                angles.pitch = -degrees;
-            } else {
-                angles.yaw = -degrees;
-            }
-            TransRotate(items[item_idx], &angles, &ref);
-#ifdef RAMPGEN_DEBUG
-            Sleep(30);
-#endif
-        }
-
-#ifdef RAMPGEN_DEBUG
-        Sleep(1000);
-#endif
-
-        if (seg == cmd.segments) {
-            Vec3 moved = {
-                orig_pos.x - copy->base.point.m_Origin.x,
-                orig_pos.y - copy->base.point.m_Origin.y,
-                orig_pos.z - copy->base.point.m_Origin.z,
-            };
-
-            // log_msg("moved %g %g %g\n", (double)moved.x, (double)moved.y, (double)moved.z);
-
-            for (auto i = 0; i < n_items; i++) {
-                TransMove(items[i], &moved);
-            }
+    if (ori->convex) {
+        // cut 2 half rotation sides so we get a repeatable non-overlapping segment
+        solid = cut_convex_seg(doc, solid, ori);
+        if (!solid) {
+            return;
         }
     }
 
-    ASSERT(n_items == cmd.segments + 1);
-    for (auto i = 1; i < n_items; i++) {
-        doc->vtable->AddObjectToWorld(doc, items[i], nullptr);
-        CHistory_KeepNew(GetHistory(), (CMapClass *)items[i], false);
+    Vec3 orig_pos = solid->base.point.m_Origin; // copy
+
+    int n_segments = 0;
+    CMapSolid *segments[wish_segments + 1];
+
+    segments[0] = solid;
+    n_segments++;
+
+    for (int seg = 1; seg <= wish_segments; seg++) {
+        // copy seg
+        CMapSolid *prev_seg = segments[seg-1];
+        CMapSolid *new_seg = (CMapSolid *)prev_seg->base.vtable->Copy(prev_seg, false);
+
+#ifdef RAMPGEN_DEBUG
+        // add now if debugging else later
+        doc->vtable->AddObjectToWorld(doc, new_seg, nullptr);
+#endif
+
+        segments[n_segments] = new_seg;
+        n_segments++;
+
+        // move the new seg to the side of the prev seg
+        move_seg(doc, prev_seg, new_seg, ori);
+
+        // rotate new seg
+        float degrees = ori->convex ? ori->degrees : -ori->degrees;
+        bool top = ori->curve == 'd';
+        rotate_seg(doc, new_seg, prev_seg, ori->rotate_angle, degrees, ori->pivot, top);
+
+        // rotate all segs including new seg back so that the new seg is axis aligned again
+        rotate_all_segs(doc, segments, n_segments, ori->rotate_angle, -degrees);
+
+        // flip and move back to initial segment pos
+        if (seg == wish_segments) {
+            move_back(doc, &orig_pos, new_seg, segments, n_segments, ori);
+        }
+    }
+
+    ASSERT(n_segments == wish_segments + 1);
+    for (auto i = 1; i < n_segments; i++) {
+#ifndef RAMPGEN_DEBUG
+        doc->vtable->AddObjectToWorld(doc, segments[i], nullptr);
+#endif
+        CHistory_KeepNew(GetHistory(), (CMapClass *)segments[i], false);
     }
 
     // TODO: do the select on IDOK click
     // CMapObjectList list;
-    // list.items = items;
-    // list.length = n_items;
+    // list.items = segments;
+    // list.length = n_segments;
     // CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);
 
     CMapDoc_SetModifiedFlag(doc, true);
 
-    generating = false;
+    *generating = false;
 }
 
-static CMapSolid *get_selected_ramp() {
+CMapSolid *get_selected_ramp() {
     CMapDoc *doc = GetActiveMapDoc();
     if (!doc) {
         return nullptr;
@@ -256,117 +467,5 @@ static CMapSolid *get_selected_ramp() {
 
     CMapSolid *solid = (CMapSolid *)item;
 
-    char axis = ramp_orientation(solid);
-    if (axis == '?') {
-        AfxMessageBoxF(MB_OK, "Brush must have a surfable face facing x or y direction.");
-        return nullptr;
-    }
-
     return solid;
-}
-
-#ifdef RAMPGEN_DEBUG
-static DWORD WINAPI hook_init_thread(LPVOID param) {
-    RampGenCmd *cmd = param;
-    rampgen(cmd->ramp, cmd->degrees, cmd->segments, cmd->direction);
-    free(cmd);
-    return 0;
-}
-#endif
-
-static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
-        case WM_INITDIALOG:
-            SendDlgItemMessage(hDlg, IDC_DEGREES, UDM_SETRANGE32, 1, 100);
-            SendDlgItemMessage(hDlg, IDC_DEGREES, UDM_SETPOS32, 0, (int)cmd.degrees);
-
-            SendDlgItemMessage(hDlg, IDC_SEGMENTS, UDM_SETRANGE32, 1, 1000);
-            SendDlgItemMessage(hDlg, IDC_SEGMENTS, UDM_SETPOS32, 0, cmd.segments);
-
-            SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETRANGE32, 0, 2048);
-            SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETPOS32, 0, (int)cmd.segment_width);
-            UDACCEL accel = { 0, 16 }; // 16 unit step - TODO: doesnt work with scroll?
-            SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETACCEL, 1, (LPARAM)&accel);
-
-            CheckDlgButton(hDlg, IDC_DIRECTION_LEFT, BST_CHECKED);
-
-            rampgen(true);
-
-            return true;
-
-        case WM_NOTIFY:
-            NMHDR *hdr = (NMHDR*)lParam;
-            if (hdr->code == UDN_DELTAPOS) {
-                if (hdr->idFrom == IDC_DEGREES || hdr->idFrom == IDC_SEGMENTS || hdr->idFrom == IDC_SEGMENT_WIDTH) {
-                    NMUPDOWN *ud = (NMUPDOWN*)lParam;
-                    if (hdr->idFrom == IDC_DEGREES) {
-                        cmd.degrees = (float)(ud->iPos + ud->iDelta);
-                    }
-                    else if (hdr->idFrom == IDC_SEGMENTS) {
-                        cmd.segments = ud->iPos + ud->iDelta;
-                    }
-                    else if (hdr->idFrom == IDC_SEGMENT_WIDTH) {
-                        cmd.segment_width = (float)(ud->iPos + ud->iDelta);
-                    }
-
-                    rampgen(false);
-                    return true;
-                }
-            }
-            break;
-
-        case WM_COMMAND:
-            if (HIWORD(wParam) == BN_CLICKED) {
-                int id = LOWORD(wParam);
-
-                if (id == IDC_DIRECTION_LEFT || id == IDC_DIRECTION_RIGHT) {
-                    cmd.direction = id == IDC_DIRECTION_LEFT ? 'l' : 'r';
-                    rampgen(false);
-                    return true;
-                } else if (id == IDCANCEL || id == IDOK) {
-                    if (id == IDCANCEL) {
-                        undo();
-                    }
-                    DestroyWindow(hDlg);
-                    dlg = nullptr;
-                    return true;
-                }
-            }
-            break;
-    }
-
-    return false;
-}
-
-void do_ramp_generator() {
-    CMapSolid *ramp = get_selected_ramp();
-    if (!ramp) {
-        return;
-    }
-
-    char axis = ramp_orientation(ramp);
-    ASSERT(axis == 'x' || axis == 'y');
-    Vec3 orig_size;
-    BBoxSize(&ramp->base.m_Render2DBox, &orig_size);
-    float width = axis == 'x' ? orig_size.x : orig_size.y;
-
-    cmd = (RampGenCmd){ramp, 3.0f, 30, 'l', width};
-    dlg = CreateDialogA(
-        GetModuleHandleA("version.dll"),
-        MAKEINTRESOURCE(IDD_RAMPGEN),
-        GetMainWndHwnd(),
-        dlg_proc
-    );
-    if (dlg) {
-        ShowWindow(dlg, SW_SHOW);
-    }
-}
-
-// called from CHistory_MarkUndoPosition hook
-// ie when the user makes changes after a ramp gen, close
-void rampgen_close() {
-    if (dlg && !generating) {
-        DestroyWindow(dlg);
-        dlg = nullptr;
-    }
 }

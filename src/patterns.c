@@ -140,6 +140,25 @@ static Pattern_t g_patterns[] = {
         (void **)&CMapDoc_SetModifiedFlag
     },
 #endif
+#ifdef USING_CMAPDOC_DELETEOBJECT
+    // 48 89 5c 24 10  48 89 74 24 18  57  48 83 ec 30  48 8b da  48 8b f1  e8 ?? ?? ?? ??  48 8b d3  48 8b c8
+    {
+        "CMapDoc::DeleteObject",
+        (const uint8_t[]){
+            0x48, 0x89, 0x5C, 0x24, 0x10,
+            0x48, 0x89, 0x74, 0x24, 0x18,
+            0x57,
+            0x48, 0x83, 0xEC, 0x30,
+            0x48, 0x8B, 0xDA,
+            0x48, 0x8B, 0xF1,
+            0xE8, 0x46, 0xEE, 0xFC, 0xFF,
+            0x48, 0x8B, 0xD3,
+            0x48, 0x8B, 0xC8
+        },
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        (void **)&CMapDoc_DeleteObject
+    },
+#endif
 #ifdef USING_CMAPFACE_SETTEXTURE
     {
         // 48 89 5c 24 18     56     57      41 56    48 81 ec 40 01 00 00        48 8b c2
@@ -275,6 +294,26 @@ static Pattern_t g_patterns[] = {
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
         (void **)&CMapSolid_ClipByFace,
+    },
+#endif
+#ifdef USING_CMAPSOLID_SPLIT
+    {
+        // 48 8b c4  48 89 58 10  48 89 68 18  48 89 70 20  57  41 54  41 55  41 56  41 57  48 81 ec b0 03 00 00
+        "CMapSolid::ClipByFace",
+        (const uint8_t[]){
+            0x48, 0x8B, 0xC4,
+            0x48, 0x89, 0x58, 0x10,
+            0x48, 0x89, 0x68, 0x18,
+            0x48, 0x89, 0x70, 0x20,
+            0x57,
+            0x41, 0x54,
+            0x41, 0x55,
+            0x41, 0x56,
+            0x41, 0x57,
+            0x48, 0x81, 0xEC, 0xB0, 0x03, 0x00, 0x00
+        },
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        (void **)&CMapSolid_Split
     },
 #endif
 #ifdef USING_CMAPSOLID_CMAPSOLID

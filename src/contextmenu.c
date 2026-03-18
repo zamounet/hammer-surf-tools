@@ -1,7 +1,7 @@
 #include "contextmenu.h"
 #include "triggergen.h"
 #include "anglefix.h"
-#include "rampgen.h"
+#include "rampgenui.h"
 
 static void add_menus(HMENU hPopup, int pos) {
     HMENU hSubMenu = CreatePopupMenu();

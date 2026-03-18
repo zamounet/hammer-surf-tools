@@ -1,15 +1,15 @@
 #include "measure.h"
-#include "hammerfuncs.h"
 #include "util.h"
 #include "hooks.h"
+#include "hammerfuncs.h"
 
 void measure_clipper_plane(void *this_, void *pRender) {
     Vec3 *ptr = (void *)this_ + CLIPPER3D_OFFSET_PLANE_NORMAL;
-    Vec3 normal = (Vec3){
+    Vec3 normal = {{
         fabsf(ptr->x),
         fabsf(ptr->y),
         fabsf(ptr->z)
-    };
+    }};
 
     bool surfable;
     char *str = NormalSurfString(&normal, "clipper plane ", &surfable);
@@ -30,12 +30,10 @@ void measure_render_2d(void *this_, void *pRender) {
         return;
     }
 
-    CMapClass *item = selected->items[0];
-    ASSERT(item);
-    if (!CMapClass_IsSolid(item)) {
+    CMapSolid *solid = CMapClass_AsSolid(selected->items[0]);
+    if (!solid) {
         return;
     }
-    CMapSolid *solid = (CMapSolid *)item;
 
     int lines = 1;
     auto n = solid->Faces.length;

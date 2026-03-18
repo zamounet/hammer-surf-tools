@@ -60,6 +60,8 @@ typedef enum {
     FACE_ORIENTATION_INVALID
 } FaceOrientation;
 
+const char *GetFaceOrientationStr(FaceOrientation orientation);
+
 typedef FaceOrientation (*CMapFace_GetOrientation_t)(void *this_);
 extern CMapFace_GetOrientation_t CMapFace_GetOrientation;
 #endif
@@ -100,6 +102,11 @@ extern CMapSolid_CMapSolid_t CMapSolid_CMapSolid;
 #ifdef USING_CMAPSOLID_CLIPBYFACE
 typedef void (*CMapSolid_ClipByFace_t)(CMapClass *this_, const CMapFace *fa, CMapClass **f, CMapClass **b);
 extern CMapSolid_ClipByFace_t CMapSolid_ClipByFace;
+#endif
+
+#ifdef USING_CMAPSOLID_SPLIT
+typedef int (*CMapSolid_Split_t)(CMapSolid *this_, Plane *pPlane, CMapSolid **pFront, CMapSolid **pBack);
+extern CMapSolid_Split_t CMapSolid_Split;
 #endif
 
 #ifdef USING_CMAPSOLID_CREATEFROMPLANES
@@ -152,6 +159,11 @@ extern Msg_t Msg;
 #ifdef USING_CMAPDOC_SETMODIFIEDFLAG
 typedef void (*CMapDoc_SetModifiedFlag_t)(void *this_, bool bModified);
 extern CMapDoc_SetModifiedFlag_t CMapDoc_SetModifiedFlag;
+#endif
+
+#ifdef USING_CMAPDOC_DELETEOBJECT
+typedef void (*CMapDoc_DeleteObject_t)(CMapDoc *this_, CMapClass *pObject);
+extern CMapDoc_DeleteObject_t CMapDoc_DeleteObject;
 #endif
 
 #ifdef USING_VALVEALLOC

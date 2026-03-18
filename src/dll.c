@@ -1,6 +1,7 @@
 #include "wrapper.h"
 #include "patterns.h"
 #include "scriptfuncs.h"
+#include "util.h"
 
 static DWORD WINAPI hook_init_thread(LPVOID param) {
     log_msg("[hook] DLL loaded\n");
@@ -46,11 +47,11 @@ static DWORD WINAPI hook_init_thread(LPVOID param) {
 
 BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID) {
     if (reason == DLL_PROCESS_ATTACH) {
-        HANDLE thread;
-
         DisableThreadLibraryCalls(hinst);
 
-        thread = CreateThread(nullptr, 0, hook_init_thread, hinst, 0, nullptr);
+        SetHInstance(hinst);
+
+        HANDLE thread = CreateThread(nullptr, 0, hook_init_thread, hinst, 0, nullptr);
 
         if (thread) {
             CloseHandle(thread);

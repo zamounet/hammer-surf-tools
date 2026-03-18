@@ -1,5 +1,16 @@
 #include "util.h"
 #include "hammerfuncs.h"
+#include "hooks.h"
+
+static char str_buffer[1024];
+
+static HINSTANCE hInstance;
+void SetHInstance(HINSTANCE hInst) {
+    hInstance = hInst;
+}
+HINSTANCE GetHInstance() {
+    return hInstance;
+}
 
 int AfxMessageBoxF(UINT nType, const char* fmt, ...) {
     const size_t BUFFER_SIZE = 512;
@@ -49,13 +60,16 @@ StoredFaceVector *CFaceEditSheet_GetFaces(void *sheet) {
     return (void *)sheet + CFaceEditSheet_m_Faces_Offset;
 }
 
-bool CMapClass_IsSolid(CMapClass *ent) {
+CMapSolid *CMapClass_AsSolid(CMapClass *ent) {
+    if (!ent) {
+        return nullptr;
+    }
     char *name = ent->vtable->GetType(ent);
-    return !strcmp(name, "CMapSolid");
+    return !strcmp(name, "CMapSolid") ? (CMapSolid *)ent : nullptr;
 }
 
 bool CMapClass_IsWorldBrush(CMapClass *ent) {
-    if (CMapClass_IsSolid(ent)) {
+    if (CMapClass_AsSolid(ent)) {
         CMapClass *parent = ent->vtable->GetParent(ent);
         if (parent && !strcmp(parent->vtable->GetType(parent), "CMapWorld")) {
             return true;
@@ -79,4 +93,46 @@ bool IsAllWorldBrushes(CMapObjectList *selected) {
         }
     };
     return count == selected->length;
+}
+
+static int debug_point_id;
+void debug_point(int id, Vec3 *point, uint32_t color) {
+    debug_point_id++;
+    CMapDoc *doc = GetActiveMapDoc();
+
+    CMapEntity *ent = new_CMapEntity();
+    CEditGameClass *edit = &ent->m_EditGameClass;
+
+    *(WORD *)((void *)ent + CMAPENTITY_OFFSET_FLAGS) = 1; // placeholder flag
+    // crashes if not main thread
+    edit->vtable->SetClass(edit, "info_target", false);
+
+    char name[128];
+    snprintf(name, sizeof(name), "[%d %d] %g %g %g\n", debug_point_id, id, (double)point->x, (double)point->y, (double)point->z);
+
+    edit->vtable->SetKeyValue(edit, "targetname", name);
+    ent->base.vtable->SetOrigin(ent, point);
+    doc->vtable->AddObjectToWorld(doc, ent, nullptr);
+
+    ent->base.vtable->SetRenderColor(ent, color);
+
+    CHistory_KeepNew(GetHistory(), (CMapClass *)ent, false);
+}
+
+char *dump_plane(Plane *plane) {
+    snprintf(str_buffer, sizeof(str_buffer), "Plane: normal=(%d %d %d) dist=%d pts=[%d %d %d, %d %d %d, %d %d %d]",
+            (int)plane->normal.x,
+            (int)plane->normal.y,
+            (int)plane->normal.z,
+            (int)plane->dist,
+            (int)plane->points[0].x,
+            (int)plane->points[0].y,
+            (int)plane->points[0].z,
+            (int)plane->points[1].x,
+            (int)plane->points[1].y,
+            (int)plane->points[1].z,
+            (int)plane->points[2].x,
+            (int)plane->points[2].y,
+            (int)plane->points[2].z);
+    return str_buffer;
 }

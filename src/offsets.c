@@ -19,4 +19,5 @@ void dump_offsets() {
     // log_msg("CMapFace::Points %zx\n", offsetof(CMapFace, Points));
     //
     // log_msg("CMapClass::m_Origin %zx\n", offsetof(CMapClass, m_Origin));
+    // log_msg("CMapClass::texture %zx\n", offsetof(CMapFace, texture));
 }
