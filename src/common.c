@@ -8,6 +8,25 @@
 #define DVECTOR_IMPLEMENTATION
 #include <dvector.h>
 
+#ifndef TEST_PATTERNS
+static void get_exe_directory(char* out, size_t size) {
+    DWORD len = GetModuleFileNameA(NULL, out, (DWORD)size);
+    if (len == 0 || len == size) {
+        // error or truncated
+        out[0] = '\0';
+        return;
+    }
+
+    // strip filename
+    for (int i = (int)len - 1; i >= 0; --i) {
+        if (out[i] == '\\' || out[i] == '/') {
+            out[i] = '\0';
+            break;
+        }
+    }
+}
+#endif
+
 // TODO: cwd changes on windows and log goes to hammerplusplus/
 
 void log_msg(const char *fmt, ...) {
@@ -17,7 +36,12 @@ void log_msg(const char *fmt, ...) {
     vprintf(fmt, va);
     va_end(va);
 #else
-    FILE *f = fopen("surf-tools.log", "a");
+    char dir[MAX_PATH];
+    get_exe_directory(dir, sizeof(dir));
+    char path[MAX_PATH];
+    snprintf(path, sizeof(path), "%s\\%s", dir, "surf-tools.log");
+
+    FILE *f = fopen(path, "a");
     if (!f)
         return;
 
