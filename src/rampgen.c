@@ -389,7 +389,6 @@ void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generati
 
     Vec3 orig_pos = solid->base.point.m_Origin; // copy
     
-    // int n_segments = 0;
     CMapSolid **segments = nullptr;
     arrput(segments, solid);
 

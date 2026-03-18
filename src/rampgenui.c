@@ -11,13 +11,15 @@ static bool generating;
 static AppendDirection default_direction = DIR_PLUS;
 static char default_curve = 'l';
 
-static void commit() {
+static void commit(bool select) {
     CMapDoc *doc = GetActiveMapDoc();
     if (doc && orientation.segment_list) {
-        CMapObjectList list;
-        list.items = (CMapClass **)orientation.segment_list;
-        list.length = (int)arrlen(orientation.segment_list);
-        CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);
+        if (select) {
+            CMapObjectList list;
+            list.items = (CMapClass **)orientation.segment_list;
+            list.length = (int)arrlen(orientation.segment_list);
+            CSelection_SelectObjectList(doc->m_pSelection, &list, scClear | scSelect);
+        }
         arrfree(orientation.segment_list);
     }
 }
@@ -97,8 +99,9 @@ static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
                 } else if (id == IDCANCEL || id == IDOK) {
                     if (id == IDCANCEL) {
                         rampgen_undo();
+                        commit(false);
                     } else if (id == IDOK) {
-                        commit();
+                        commit(true);
                     }
                     DestroyWindow(hDlg);
                     dlg = nullptr;
@@ -161,7 +164,8 @@ void do_ramp_generator() {
 // ie when the user makes changes after a ramp gen, close
 void rampgen_close() {
     if (dlg && !generating) {
-        commit();
+        // changes are comitted but selection is left alone
+        commit(false);
         DestroyWindow(dlg);
         dlg = nullptr;
     }

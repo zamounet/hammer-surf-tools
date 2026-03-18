@@ -18,7 +18,7 @@ typedef enum {
     DIR_PLUS = 1
 } AppendDirection;
 
-// TODO: only use in rampgenui
+// TODO: only use in rampgenui, rename to RampGenUIState
 typedef struct {
     CMapSolid *ramp;
     float degrees;
@@ -28,7 +28,7 @@ typedef struct {
     float segment_width;
 } RampGenCmd;
 
-// TODO: rename to RampGenOp or something
+// TODO: rename to RampGenState, rename ramp_orientation to something else
 typedef struct {
     Axis axis;
     AppendDirection direction;
