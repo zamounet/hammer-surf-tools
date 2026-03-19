@@ -105,6 +105,7 @@ bool ramp_orientation(RampGenCmd *cmd, RampOrientation *out_orientation) {
         out_orientation->direction = direction;
         out_orientation->orientation = orientation;
         out_orientation->curve = curve;
+        out_orientation->segment_gap = cmd->segment_gap;
 
         int dir = (direction == DIR_PLUS) ? +1 : -1;
         int facing = (orientation == FACE_ORIENTATION_NORTH_WALL
@@ -204,6 +205,8 @@ static void move_seg(CMapDoc *doc, CMapSolid *prev_seg, CMapSolid *seg, RampOrie
 
     Vec3 delta = VEC3_ZERO;
     delta.v[ori->axis] = ori->direction == DIR_PLUS ? size.v[ori->axis] : -size.v[ori->axis];
+    delta.v[ori->axis] += DIR_PLUS ? ori->segment_gap : -ori->segment_gap;
+
     TransMove(seg, &delta);
 }
 

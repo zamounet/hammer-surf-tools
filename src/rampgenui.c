@@ -35,9 +35,14 @@ static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 
             SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETRANGE32, 0, 2048);
             SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETPOS32, 0, (int)cmd.segment_width);
+
+            SendDlgItemMessage(hDlg, IDC_SEGMENT_GAP, UDM_SETRANGE32, 0, 2048);
+            SendDlgItemMessage(hDlg, IDC_SEGMENT_GAP, UDM_SETPOS32, 0, (int)cmd.segment_gap);
+
             // TODO: snap to 16 grid
             UDACCEL accel = { 0, 16 }; // 16 unit step - TODO: doesnt work with scroll?
             SendDlgItemMessage(hDlg, IDC_SEGMENT_WIDTH, UDM_SETACCEL, 1, (LPARAM)&accel);
+            SendDlgItemMessage(hDlg, IDC_SEGMENT_GAP,   UDM_SETACCEL, 1, (LPARAM)&accel);
 
             // TODO: initialize by cmd.curve
             if (cmd.curve == 'l') {
@@ -58,7 +63,7 @@ static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
         case WM_NOTIFY:
             NMHDR *hdr = (NMHDR*)lParam;
             if (hdr->code == UDN_DELTAPOS) {
-                if (hdr->idFrom == IDC_DEGREES || hdr->idFrom == IDC_SEGMENTS || hdr->idFrom == IDC_SEGMENT_WIDTH) {
+                if (hdr->idFrom == IDC_DEGREES || hdr->idFrom == IDC_SEGMENTS || hdr->idFrom == IDC_SEGMENT_WIDTH || hdr->idFrom == IDC_SEGMENT_GAP) {
                     NMUPDOWN *ud = (NMUPDOWN*)lParam;
                     if (hdr->idFrom == IDC_DEGREES) {
                         cmd.degrees = (float)(ud->iPos + ud->iDelta);
@@ -68,6 +73,8 @@ static INT_PTR dlg_proc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
                     }
                     else if (hdr->idFrom == IDC_SEGMENT_WIDTH) {
                         cmd.segment_width = (float)(ud->iPos + ud->iDelta);
+                    } else if (hdr->idFrom == IDC_SEGMENT_GAP) {
+                        cmd.segment_gap = (float)(ud->iPos + ud->iDelta);
                     }
 
                     rampgen(&cmd, &orientation, false, &generating);
@@ -133,9 +140,9 @@ void do_ramp_generator() {
     }
 
 #ifdef RAMPGEN_DEBUG
-    cmd = (RampGenCmd){ramp, 3.0f, 1, default_curve, default_direction};
+    cmd = (RampGenCmd){ramp, 3.0f, 1, default_curve, default_direction, 0.0f, 0.0f};
 #else
-    cmd = (RampGenCmd){ramp, 3.0f, 30, default_curve, default_direction};
+    cmd = (RampGenCmd){ramp, 3.0f, 30, default_curve, default_direction, 0.0f, 0.0f};
 #endif
 
     if (!ramp_orientation(&cmd, &orientation)) {

@@ -11,6 +11,7 @@
 #define IDC_CURVE_DOWN      50006
 #define IDC_DIRECTION_PLUS  50007
 #define IDC_DIRECTION_MINUS 50008
+#define IDC_SEGMENT_GAP     50009
 
 void do_ramp_generator();
 void rampgen_close();

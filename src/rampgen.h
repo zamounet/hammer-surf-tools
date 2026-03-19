@@ -26,6 +26,7 @@ typedef struct {
     char curve;
     AppendDirection direction;
     float segment_width;
+    float segment_gap;
 } RampGenCmd;
 
 // TODO: rename to RampGenState, rename ramp_orientation to something else
@@ -33,6 +34,7 @@ typedef struct {
     Axis axis;
     AppendDirection direction;
     FaceOrientation orientation;
+    float segment_gap;
     char curve;
     bool convex;
     int sign; // dir * facing * axis_sign
