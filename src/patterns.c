@@ -221,7 +221,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8D, 0x8F, 0x90, 0x01, 0x00, 0x00
         },
         "xxxxxxxxxxxxxxxxxxx????xxxxxxxx",
-        (void **)&CMapEntity_CMapEntity,
+        (void **)&CMapEntityMethods.CMapEntity,
     },
 #endif
 #ifdef USING_AFXMESSAGEBOX
@@ -798,6 +798,63 @@ static Pattern_t g_patterns[] = {
         },
         "xxx????xxxx?xxxx?x",
         (void **)&s_Classes_ptr,
+    },
+#endif
+#ifdef USING_CMAPCLASS_GETVISGROUPCOUNT
+    {
+        // 8B 81 ? ? ? ? C3 ? ? ? ? ? ? ? ? ? 40 53 48 83 EC ? 48 8B D9
+        "CMapClass::GetVisGroupCount",
+        (const uint8_t[]) {
+            0x8B, 0x81, 0x00, 0x00, 0x00, 0x00, 0xC3, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x53, 0x48, 0x83,
+            0xEC, 0x00, 0x48, 0x8B, 0xD9
+        },
+        "xx????x?????????xxxxx?xxx",
+        (void **)&CMapClass_GetVisGroupCount,
+    },
+#endif
+#ifdef USING_CMAPCLASS_GETVISGROUP
+    {
+        // 48 8B 81 ? ? ? ? 8B D2 ? ? ? ? C3 ? ? 8B 81 ? ? ? ? C3 ? ? ? ? ? ? ? ? ? 40 53
+        "CMapClass::GetVisGroup",
+        (const uint8_t[]) {
+            0x48, 0x8B, 0x81, 0x00, 0x00, 0x00, 0x00, 0x8B, 0xD2, 0x00,
+            0x00, 0x00, 0x00, 0xC3, 0x00, 0x00, 0x8B, 0x81, 0x00, 0x00,
+            0x00, 0x00, 0xC3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x40, 0x53
+        },
+        "xxx????xx????x??xx????x?????????xx",
+        (void **)&CMapClass_GetVisGroup,
+    },
+#endif
+#ifdef USING_CVISGROUP_ISAUTOVISGROUP
+    {
+        // 0F B6 41 ? C3 ? ? ? ? ? ? ? ? ? ? ? 0F B6 05
+        "CVisGroup::IsAutoVisGroup",
+        (const uint8_t[]) {
+            0x0F, 0xB6, 0x41, 0x00, 0xC3, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x0F, 0xB6, 0x05
+        },
+        "xxx?x???????????xxx",
+        (void **)&CVisGroup_IsAutoVisGroup,
+    },
+#endif
+#ifdef USING_CMAPENTITY_HASSOLIDCHILDREN
+    {
+        // 48 89 5C 24 08 57 48 83 EC 20 33 DB 48 8B F9 39 99 10 01 00 00 7E 2B
+        "CMapEntity::HasSolidChildren",
+        (const uint8_t[]) {
+            0x48, 0x89, 0x5C, 0x24, 0x08,
+            0x57,
+            0x48, 0x83, 0xEC, 0x20,
+            0x33, 0xDB,
+            0x48, 0x8B, 0xF9,
+            0x39, 0x99, 0x10, 0x01, 0x00, 0x00,
+            0x7E, 0x2B
+        },
+        "xxxxxxxxxxxxxxxxxxxxxxx",
+        (void **)&CMapEntityMethods.HasSolidChildren,
     },
 #endif
 };

@@ -45,7 +45,7 @@ int AfxMessageBoxF(UINT nType, const char* fmt, ...) {
 
 CMapEntity *new_CMapEntity() {
     CMapEntity *ent = ValveAlloc(CMAPENTITY_SIZE);
-    CMapEntity_CMapEntity(ent);
+    CMapEntityMethods.CMapEntity(ent);
     return ent;
 }
 

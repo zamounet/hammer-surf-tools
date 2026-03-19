@@ -20,10 +20,6 @@ CHistory_Keep_t CHistory_Keep;
 CHistory_Undo_t CHistory_Undo;
 #endif
 
-#ifdef USING_CMAPENTITY_CMAPENTITY
-CMapEntity_CMapEntity_t CMapEntity_CMapEntity;
-#endif
-
 #ifdef USING_CMAPFACE_GETORIENTATION
 static const char *FaceOrientation_str[] = {
     "FLOOR",
@@ -75,6 +71,10 @@ WCKeyValues_GetValue_t WCKeyValues_GetValue;
 CSelection_SelectObjectList_t CSelection_SelectObjectList;
 #endif
 
+#ifdef USING_CVISGROUP_ISAUTOVISGROUP
+CVisGroup_IsAutoVisGroup_t CVisGroup_IsAutoVisGroup;
+#endif
+
 #ifdef USING_S_CLASSES
 void *s_Classes_ptr;
 #endif
@@ -83,3 +83,4 @@ CMapClassMethods_t  CMapClassMethods;
 CMapDocMethods_t    CMapDocMethods;
 CMapSolidMethods_t  CMapSolidMethods;
 CMapFaceMethods_t   CMapFaceMethods;
+CMapEntityMethods_t CMapEntityMethods;

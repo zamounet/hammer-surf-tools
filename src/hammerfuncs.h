@@ -26,11 +26,6 @@ typedef void (*CHistory_Undo_t)(CHistory *this_, CMapObjectList *pNewSelection, 
 extern CHistory_Undo_t CHistory_Undo;
 #endif
 
-#ifdef USING_CMAPENTITY_CMAPENTITY
-typedef void (*CMapEntity_CMapEntity_t)(CMapEntity *this_);
-extern CMapEntity_CMapEntity_t CMapEntity_CMapEntity;
-#endif
-
 #ifdef USING_CRENDER_DRAWTEXT
 typedef void (*CRender_DrawText_t)(void *this_, const char *text, int x, int y, int nFlags);
 extern CRender_DrawText_t CRender_DrawText;
@@ -54,7 +49,10 @@ typedef void (*CStrDlg_CStrDlg_t)(void *this_, DWORD dwFlags, const char *pszStr
 extern CStrDlg_CStrDlg_t CStrDlg;
 #endif
 
-
+#ifdef USING_CVISGROUP_ISAUTOVISGROUP
+typedef bool (*CVisGroup_IsAutoVisGroup_t)(void *this_);
+extern CVisGroup_IsAutoVisGroup_t CVisGroup_IsAutoVisGroup;
+#endif
 
 #ifdef USING_GETHISTORY
 typedef CHistory *(*GetHistory_t)();
@@ -121,6 +119,15 @@ typedef struct {
     #ifdef USING_CMAPCLASS_ENUMCHILDREN
     bool (*EnumChildren)(void *this_, EnumChildrenCallback cb, void *param, MAPCLASSTYPE type);
     #endif
+    
+    #ifdef USING_CMAPCLASS_GETVISGROUPCOUNT
+    CVisGroup *(*GetVisGroup)(void *this_, int nIndex);
+    #endif
+
+    #ifdef USING_CMAPCLASS_GETVISGROUPCOUNT
+    int (*GetVisGroupCount)(void *this_);
+    #endif
+
 
 } CMapClassMethods_t;
 extern CMapClassMethods_t CMapClassMethods;
@@ -243,6 +250,23 @@ typedef struct {
 
 } CMapFaceMethods_t;
 extern CMapFaceMethods_t  CMapFaceMethods;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//
+//  CMapEntity
+//
+
+typedef struct {
+    #ifdef USING_CMAPENTITY_HASSOLIDCHILDREN
+    bool (*HasSolidChildren)(void *this_);
+    #endif
+    
+    #ifdef USING_CMAPENTITY_CMAPENTITY
+    void (*CMapEntity)(CMapEntity *this_);
+    #endif
+
+} CMapEntityMethods_t;
+extern CMapEntityMethods_t CMapEntityMethods;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #endif // HAMMERFUNCS_H
