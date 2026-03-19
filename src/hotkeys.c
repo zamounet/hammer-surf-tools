@@ -7,7 +7,7 @@ static const ACCEL hotkey3 = { FALT | FSHIFT, 'T', CMD_TRIGGER_GENERATOR };
 static const ACCEL hotkeys[] = { hotkey1, hotkey2, hotkey3 };
 
 HACCEL check_add_hotkeys(HACCEL accel, LPCSTR lpTableName) {
-    if (lpTableName == MAKEINTRESOURCE(129)) { // TODO: const
+    if (lpTableName == MAKEINTRESOURCE(IDR_FORGEMAPTYPE)) {
         int count = CopyAcceleratorTableA(accel, nullptr, 0);
         int extra_hotkeys = ARRAY_LEN(hotkeys);
 

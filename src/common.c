@@ -27,8 +27,6 @@ static void get_exe_directory(char* out, size_t size) {
 }
 #endif
 
-// TODO: cwd changes on windows and log goes to hammerplusplus/
-
 void log_msg(const char *fmt, ...) {
 #ifdef TEST_PATTERNS
     va_list va;
@@ -36,6 +34,7 @@ void log_msg(const char *fmt, ...) {
     vprintf(fmt, va);
     va_end(va);
 #else
+    // cwd changes so have to do this
     char dir[MAX_PATH];
     get_exe_directory(dir, sizeof(dir));
     char path[MAX_PATH];

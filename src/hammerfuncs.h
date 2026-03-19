@@ -125,6 +125,14 @@ extern CSolidFaces_MakeFace_t CSolidFaces_MakeFace;
 #endif
 
 #ifdef USING_CSTRDLG_CSTRDLG
+typedef struct {
+    uint8_t unk[CSTRDLG_OFFSET_STRING];
+    char *m_string;
+    uint8_t padding[CSTRDLG_SIZE - CSTRDLG_OFFSET_STRING - sizeof(char *)];
+} CStrDlgInst;
+static_assert(offsetof(CStrDlgInst, m_string) == CSTRDLG_OFFSET_STRING, "CMapClass::m_Origin offset wrong");
+static_assert(sizeof(CStrDlgInst) == CSTRDLG_SIZE, "CStrDlg size wrong");
+
 typedef void (*CStrDlg_CStrDlg_t)(void *this_, DWORD dwFlags, const char *pszString, const char *pszPrompt, const char *pszTitle);
 extern CStrDlg_CStrDlg_t CStrDlg;
 #endif

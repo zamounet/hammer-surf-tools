@@ -53,12 +53,14 @@ DEFINE_VECTOR(CMapClass *, CMapObjectList);
 static_assert(sizeof(CMapObjectList) == 8 + 4 + 4 + 4 + 4,   "CMapObjectList size wrong");
 static_assert(offsetof(CMapObjectList, length) == 8 + 4 + 4, "CMapObjectList::length offset wrong");
 
+
 typedef enum {
     AXIS_X,
     AXIS_Y,
     AXIS_Z,
     AXIS_UNK,
 } Axis;
+
 typedef union {
     struct {
         float x;
@@ -68,17 +70,20 @@ typedef union {
     float v[3];
 } Vec3;
 
+
 typedef struct HAMMER_ALIGN {
     Vec3 normal;
     float dist;
     Vec3 points[3];
 } Plane;
 
+
 typedef enum {
     YAW,
     PITCH,
     ROLL
 } Angle;
+
 typedef union {
     struct {
         float yaw;
@@ -88,19 +93,13 @@ typedef union {
     float v[3];
 } Euler;
 
+
 typedef struct HAMMER_ALIGN {
     void *vtable;
     Vec3 mins;
     Vec3 maxs;
 } BoundingBox;
 
-typedef struct {
-    uint8_t unk[CSTRDLG_OFFSET_STRING];
-    char *m_string;
-    uint8_t padding[CSTRDLG_SIZE - CSTRDLG_OFFSET_STRING - sizeof(char *)];
-} CStrDlgInst;
-static_assert(offsetof(CStrDlgInst, m_string) == CSTRDLG_OFFSET_STRING, "CMapClass::m_Origin offset wrong");
-static_assert(sizeof(CStrDlgInst) == CSTRDLG_SIZE, "CStrDlg size wrong");
 
 // msvc desctuctor flags, guessed name
 typedef enum {
@@ -109,6 +108,7 @@ typedef enum {
     DELETE_ARRAY
 } DeleteFlags;
 typedef void (*Dtor_t)(void *this_, DeleteFlags flags);
+
 
 typedef char *(*CMapAtom_GetType_t)(void *this_);
 typedef void (*CMapPoint_SetOrigin_t)(void *this_, Vec3 *pos);
@@ -121,6 +121,7 @@ typedef CMapClass *(*CMapAtom_GetParent_t)(void *this_);
 typedef void (*CMapAtom_SetRenderColor_t)(void *this_, uint32_t color);
 typedef void (*CMapAtom_SetRenderColor2_t)(void *this_, uint8_t r, uint8_t g, uint8_t b);
 typedef bool (*CMapClass_UpdateObjectColor_t)(void *this_);
+
 typedef struct {
     // CMapAtom
     CMapAtom_GetType_t GetType; // 0
@@ -185,6 +186,7 @@ typedef struct {
     // ... 82
 } CMapClassVTable;
 
+
 // in hammer++ there is no SetClass on CMapEntity
 typedef void (*CEditGameClass_SetClass_t)(void *this_, const char *pszClassname, bool bLoading);
 typedef void (*CEditGameClass_SetKeyValue_t)(void *this_, const char *key, const char *value);
@@ -193,11 +195,12 @@ typedef struct {
     CEditGameClass_SetKeyValue_t SetKeyValue;
 } CEditGameClassVTable;
 
+
 typedef struct {
     CEditGameClassVTable *vtable;
     void *m_KeyValues; // WCKeyValues instance start (not pointer to)
-    // need a union in CMapClass if this is defined further
 } CEditGameClass; // incomplete sized type
+
 
 typedef struct HAMMER_ALIGN {
     uint8_t padding[CVISGROUP_OFFSET_NAME];
@@ -205,6 +208,7 @@ typedef struct HAMMER_ALIGN {
 } CVisGroup; // incomplete sized type
 static_assert(offsetof(CVisGroup, m_szName) == CVISGROUP_OFFSET_NAME, "CVisGroup::m_szName offset wrong");
 DEFINE_VECTOR(CVisGroup *, CVisGroupList);
+
 
 typedef struct HAMMER_ALIGN CMapAtom {
     // vtable                    // 0x00
@@ -224,22 +228,22 @@ typedef struct HAMMER_ALIGN CMapAtom {
 } CMapAtom;
 static_assert(sizeof(CMapAtom) == CMAPATOM_SIZE - sizeof(void *), "CMapAtom size wrong"); // subtracts vtable ptr size
 
+
 typedef struct HAMMER_ALIGN CMapPoint {
     Vec3 m_Origin;               // 0x50
     int padding;                 // 0x5C
 } CMapPoint;
 static_assert(sizeof(CMapPoint) == CMAPPOINT_SIZE, "CMapPoint size wrong");
 
+
 typedef struct HAMMER_ALIGN CMapClass {
     CMapClassVTable *vtable;     // 0x000
     CMapAtom atom;               // 0x008
     CMapPoint point;
-
     void *CMapClass_0x60;        // 0x060
     BoundingBox m_CullBox;       // 0x068
     BoundingBox m_BoundingBox;   // 0x088
     BoundingBox m_Render2DBox;   // 0x0A8
-
     void *CMapClass_0xC8;        // 0x0C8
     void *CMapClass_0xD0;        // 0x0D0
     void *CMapClass_0xD8;        // 0x0D8
@@ -269,6 +273,7 @@ typedef struct HAMMER_ALIGN CMapClass {
 } CMapClass;
 static_assert(sizeof(CMapClass) == CMAPCLASS_SIZE, "CMapClass size wrong");
 
+
 typedef struct HAMMER_ALIGN CMapEntity {
     CMapClass base;                 // 0x000
     CEditGameClass m_EditGameClass; // 0x190
@@ -278,6 +283,7 @@ static_assert(offsetof(CMapEntity, base.point.m_Origin) == CMAPCLASS_OFFSET_ORIG
 static_assert(offsetof(CMapEntity, base.m_Render2DBox)  == CMAPCLASS_OFFSET_RENDER2DBOX,    "CMapClass::m_Render2DBox offset wrong");
 static_assert(offsetof(CMapEntity, m_EditGameClass)     == CMAPENTITY_OFFSET_EDITGAMECLASS, "CMapEntity::m_EditGameClass offset wrong");
 static_assert(sizeof(CMapEntity)                        == CMAPENTITY_SIZE,                 "CMapEntity size wrong");
+
 
 typedef struct HAMMER_ALIGN CMapSolid {
     CMapClass base;         // 0x000
@@ -289,6 +295,7 @@ typedef struct HAMMER_ALIGN CMapSolid {
 static_assert(offsetof(CMapSolid, Faces) == CMAPSOLID_OFFSET_FACES, "CMapClass::Faces offset wrong");
 static_assert(sizeof(CMapSolid)          == CMAPSOLID_SIZE,         "CMapClass size wrong");
 
+
 // changed in hammer++, used to be just a vec3
 typedef struct HAMMER_ALIGN {
     Vec3 point;
@@ -297,6 +304,7 @@ typedef struct HAMMER_ALIGN {
 } Vec3Points;
 static_assert(sizeof(Vec3Points) == VEC3POINTS_SIZE, "Vec3Points size wrong");
 DEFINE_VECTOR(Vec3Points, Vec3PointsVector);
+
 
 typedef struct HAMMER_ALIGN CMapFace {
     CMapClassVTable *vtable;                                                             // 0x000
@@ -315,6 +323,7 @@ static_assert(offsetof(CMapFace, Points)  == CMAPFACE_OFFSET_POINTS,  "CMapFace:
 static_assert(offsetof(CMapFace, texture) == CMAPFACE_OFFSET_TEXTURE, "CMapFace::texture offset wrong");
 static_assert(sizeof(CMapFace)            == CMAPFACE_SIZE,           "CMapFace size wrong");
 
+
 typedef struct HAMMER_ALIGN {
     void *vtable;                   // 0x00
     void *unk1;                     // 0x08
@@ -322,6 +331,7 @@ typedef struct HAMMER_ALIGN {
     CMapObjectList m_SelectionList; // 0x18
 } CSelection; // incomplete sized type
 static_assert(offsetof(CSelection, m_SelectionList) == CSELECTION_OFFSET_SELECTIONLIST, "CSelection::m_SelectionList offset wrong");
+
 
 #define MAPDOC_VTABLE_ADDOBJECTTOWORLD 71
 typedef void (*CMapDoc_AddObjectToWorld_t)(void *this_, void *obj, void *parent);
@@ -331,6 +341,7 @@ typedef struct {
 } CMapDocVTable;
 static_assert(offsetof(CMapDocVTable, AddObjectToWorld)
     == MAPDOC_VTABLE_ADDOBJECTTOWORLD * sizeof(void *), "CMapDocVTable::AddObjectToWorld offset wrong");
+
 
 typedef struct HAMMER_ALIGN CMapDoc {
     CMapDocVTable *vtable;
@@ -342,13 +353,15 @@ typedef struct HAMMER_ALIGN CMapDoc {
 static_assert(offsetof(CMapDoc, m_pWorld)     ==   CMAPDOC_OFFSET_MPWORLD, "CMapDoc::m_pWorld offset wrong");
 static_assert(offsetof(CMapDoc, m_pSelection) == CMAPDOC_OFFSET_SELECTION, "CMapDoc::m_pSelection offset wrong");
 
+
 typedef struct HAMMER_ALIGN {
     uint8_t padding[CHISTORYTRACK_OFFSET_NAME];
     char szName[128];
 } CHistoryTrack; // incomplete sized type
 static_assert(offsetof(CHistoryTrack, szName) ==   CHISTORYTRACK_OFFSET_NAME, "CHistoryTrack::szName offset wrong");
-
 DEFINE_VECTOR(CHistoryTrack *, HistoryTrackRefVector);
+
+
 typedef struct HAMMER_ALIGN {
     CHistoryTrack *CurTrack;
     HistoryTrackRefVector Tracks;

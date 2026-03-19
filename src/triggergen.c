@@ -5,17 +5,7 @@
 
 #define TRIGGER_HEIGHT 2.0f
 
-#define CREATE_BUILD_PLANE_POINTS               0x0001
-
-// void debug_point() {
-//     CMapClass *ent = new_CMapEntity();
-//     ent->m_EditGameClass.vtable->SetClass(&ent->m_EditGameClass, "info_target", false);
-//     char name[128];
-//     snprintf(name, sizeof(name), "vTopPoints[%d] %g %g %g\n", i, (double)pFace->Points[i].point.x, (double)pFace->Points[i].point.y, (double)pFace->Points[i].point.z);
-//     ent->m_EditGameClass.vtable->SetKeyValue(&ent->m_EditGameClass, "targetname", name);
-//     ent->vtable->SetOrigin(ent, &vTopPoints[i]);
-//     doc->vtable->AddObjectToWorld(doc, ent, false);
-// }
+#define CREATE_BUILD_PLANE_POINTS 0x0001
 
 static CMapFace *make_trigger_face(CMapSolid *solid, Vec3 *points, int nPoints) {
     CMapFace *face = CSolidFaces_MakeFace(&solid->Faces);
@@ -131,18 +121,4 @@ void do_trigger_generator() {
     CMapDoc_SetModifiedFlag(doc, true);
 
     // TODO: bring up object properties dialog
-
-    // old scale code, left here for example for TransScale
-
-    // BoundingBox *bbox = &copy->m_Render2DBox;
-    // Vec3 size;
-    // BBoxSize(bbox, &size);
-    //
-    // Vec3 delta = {0.0f, 0.0f, size.z};
-    // TransMove(copy, &delta);
-    //
-    // float factor = TRIGGER_HEIGHT / size.z;
-    // Vec3 ref = {bbox->maxs.x, bbox->maxs.y, bbox->mins.z};
-    // Vec3 scale = {1.0f, 1.0f, factor};
-    // TransScale(copy, &ref, &scale);
 }
