@@ -41,9 +41,9 @@ enum {
     cfEdgeAlign = 0x10 
 };
 
-typedef void (*CFaceEditSheet_ClickFace_t)(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode);
+typedef void (*CFaceEditSheet_ClickFace_t)(void *this_, CMapSolid *pSolid, int faceIndex, int cmd, int clickMode);
 extern CFaceEditSheet_ClickFace_t orig_CFaceEditSheet_ClickFace;
-void hook_CFaceEditSheet_ClickFace(void *this_, CMapClass *pSolid, int faceIndex, int cmd, int clickMode);
+void hook_CFaceEditSheet_ClickFace(void *this_, CMapSolid *pSolid, int faceIndex, int cmd, int clickMode);
 #endif
 
 #ifdef USING_HOOK_ENABLEMENUITEM

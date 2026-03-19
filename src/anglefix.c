@@ -6,6 +6,9 @@
 
 #define PLAYER_SIZE 32.0f
 
+// i believe both versions compile to the same geometry and whole brush looks cleaner in hammer
+#define WHOLE_BRUSH_ANGLEFIX
+
 // credit to not-a-zombie for his code on https://not-a-zombie.github.io/vmf-resizer/
 
 static CMapFace *best_surfable_face(CMapSolid *solid) {
@@ -107,10 +110,15 @@ void do_anglefix() {
             CMapFace *face = &item->Faces.items[i];
             CMapFace_SetTexture(face, "tools/toolsplayerclip", false);
             CMapFace_InitializeTextureAxes(face, TEXTURE_ALIGN_FACE, INIT_TEXTURE_ALL | INIT_TEXTURE_FORCE);
+#ifdef WHOLE_BRUSH_ANGLEFIX
+            TransMove(face, &displacement);
+#endif
         }
 
-        // displace original brush
+#ifndef WHOLE_BRUSH_ANGLEFIX
+        // only displace original face
         TransMove(surfable_face, &displacement);
+#endif
 
         CMapEntity *ent = new_CMapEntity();
         CEditGameClass *edit = &ent->m_EditGameClass;

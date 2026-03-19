@@ -56,8 +56,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID) {
         if (thread) {
             CloseHandle(thread);
         } else {
-            log_msg("[hook] failed to create init thread (err=%lu)\n",
-                    GetLastError());
+            log_msg("[hook] failed to create init thread (err=%lu)\n", GetLastError());
         }
     }
 
