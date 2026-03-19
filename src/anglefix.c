@@ -30,18 +30,18 @@ static CMapFace *best_surfable_face(CMapSolid *solid) {
     return best;
 }
 
-static void to_euler(Vec3 *v, Euler *out) {
-    out->yaw = atan2f(v->y, v->x);
-    out->pitch = atan2f(-v->z, sqrtf(v->x * v->x + v->y * v->y));
-    out->roll = 0.0f;
+static Euler vec3_rads(Vec3 v) {
+    return (Euler){{
+        atan2f(v.y, v.x),
+        atan2f(-v.z, sqrtf(v.x * v.x + v.y * v.y)),
+        0.0f,
+    }};
 }
 
 static float move_distance(float theta) {
     theta = fmodf(theta + 2.0f * (float)M_PI, (float)M_PI / 2.0f);
     return (sqrtf(2.0f) * cosf(theta - (float)M_PI_4) - 1.0f) * PLAYER_SIZE / 2.0f;
 }
-
-// TODO: fix up verts to match what compiler fixes up
 
 void do_anglefix() {
     CMapDoc *doc = GetActiveMapDoc();
@@ -74,16 +74,16 @@ void do_anglefix() {
             continue;
         }
 
-        Vec3 *normal = &surfable_face->plane.normal;
-
-        Euler euler;
-        Vec3 normal_inv = {{-normal->x, -normal->y, -normal->z}}; // TODO: why needed?
-        to_euler(&normal_inv, &euler);
-
+        Vec3 normal_inv = vec3Negate(surfable_face->plane.normal);
+        Euler euler = vec3_rads(normal_inv);
         float theta = euler.yaw;
         float dist = move_distance(theta);
+        Vec3 displacement = {{
+            dist * cosf(theta),
+            dist * sinf(theta),
+            0.0f
+        }};
 
-        // does compiler snap to 1u?
         if (dist < 0.25f) {
             n_unneeded++;
             continue;
@@ -95,10 +95,6 @@ void do_anglefix() {
         }
 
         Msg(mwStatus, "anglefix displacing by %g", (double)dist);
-
-        float x = dist * cosf(theta);
-        float y = dist * sinf(theta);
-        Vec3 displacement = {{x, y, 0.0f}};
 
         // copy before mutating original brush
         CHistory_Keep(GetHistory(), (CMapClass *)item);

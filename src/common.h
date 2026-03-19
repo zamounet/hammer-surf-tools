@@ -33,10 +33,12 @@ void log_msg(const char *fmt, ...);
 #define IDR_FORGEMAPTYPE            129
 #define IDD_FACEEDIT                194
 
-// structs
+// typedefs
 typedef struct CMapClass CMapClass;
 typedef struct CMapFace CMapFace;
 typedef struct CMapDoc CMapDoc;
+typedef vec3 Vec3;
+#define VEC3_ONE VEC3(1, 1, 1)
 
 // CUtlVector
 #define DEFINE_VECTOR(T, Name) \
@@ -61,15 +63,6 @@ typedef enum {
     AXIS_UNK,
 } Axis;
 
-typedef union {
-    struct {
-        float x;
-        float y;
-        float z;
-    };
-    float v[3];
-} Vec3;
-
 
 typedef struct HAMMER_ALIGN {
     Vec3 normal;
@@ -92,6 +85,7 @@ typedef union {
     };
     float v[3];
 } Euler;
+#define EULER_ZERO {{0.0f, 0.0f, 0.0f}}
 
 
 typedef struct HAMMER_ALIGN {

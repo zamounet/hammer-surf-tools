@@ -4,13 +4,6 @@
 void SetHInstance(HINSTANCE hInst);
 HINSTANCE GetHInstance();
 
-static inline float Vec3Dot(const Vec3 *a) {
-    const Vec3 up = {{0, 0, 1}};
-    return a->x * up.x +
-           a->y * up.y +
-           a->z * up.z;
-}
-
 static inline void BBoxCenter(const BoundingBox *bbox, Vec3 *outCenter) {
     outCenter->x = (bbox->mins.x + bbox->maxs.x) * 0.5f;
     outCenter->y = (bbox->mins.y + bbox->maxs.y) * 0.5f;
@@ -49,26 +42,6 @@ static inline void BBoxTrueCenter(CMapClass **ents, Vec3 *outCenter) {
     outCenter->z = (minZ + maxZ) * 0.5f;
 }
 
-static inline bool Vec3Normalize(Vec3 *v) {
-    float len = sqrtf(v->x * v->x + v->y * v->y + v->z * v->z);
-    if (len == 0.0f) {
-        return false;
-    }
-
-    float inv = 1.0f / len;
-    v->x *= inv;
-    v->y *= inv;
-    v->z *= inv;
-
-    return true;
-}
-
-static inline void Vec3Mul(Vec3 v, float s, Vec3 *out) {
-    out->x = v.x * s;
-    out->y = v.y * s;
-    out->z = v.z * s;
-}
-
 static inline bool NormalSurfable(Vec3 *normal) {
     return normal->z < SURF_NORMAL && normal->z >= UNSURF_NORMAL;
 }
@@ -78,7 +51,8 @@ static inline bool NormalHeadSurfable(Vec3 *normal) {
 }
 
 static inline float NormalDegrees(Vec3 *normal) {
-    return acosf(fabsf(Vec3Dot(normal))) * (180.0f / (float)M_PI);
+    const Vec3 up = {{0.0f, 0.0f, 1.0f}};
+    return acosf(fabsf(vec3DotProduct(*normal, up))) * (180.0f / (float)M_PI);
 }
 
 static inline int SteepnessScore(Vec3 *normal) {

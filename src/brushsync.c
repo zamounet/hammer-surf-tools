@@ -7,7 +7,13 @@
 // proof of concept, vscript code isn't finished
 
 typedef struct {
-    int pos[3];
+    int x;
+    int y;
+    int z;
+} Int3;
+
+typedef struct {
+    Int3 pos;
     CMapClass *ent;
 } FindEntity;
 
@@ -16,11 +22,13 @@ static bool find_ent_by_pos(CMapClass *ent, void *param) {
 
     char *name = ent->vtable->GetType(ent);
     if (!strcmp(name, "CMapEntity")) {
-        int rx = (int)roundf(ent->point.m_Origin.x);
-        int ry = (int)roundf(ent->point.m_Origin.y);
-        int rz = (int)roundf(ent->point.m_Origin.z);
+        Int3 rounded = {
+            (int)roundf(ent->point.m_Origin.x),
+            (int)roundf(ent->point.m_Origin.y),
+            (int)roundf(ent->point.m_Origin.z)
+        };
 
-        if (rx == find->pos[0] && ry == find->pos[1] && rz == find->pos[2]) {
+        if (rounded.x == find->pos.x && rounded.y == find->pos.y && rounded.z == find->pos.z) {
             find->ent = ent;
             return false;
         }
@@ -29,16 +37,14 @@ static bool find_ent_by_pos(CMapClass *ent, void *param) {
     return true;
 }
 
-static void move_brush(int *start, int *end) {
+static void move_brush(Int3 start, Int3 end) {
     CMapDoc *doc = GetActiveMapDoc();
     if (!doc || !doc->m_pWorld) {
         return;
     }
 
     FindEntity find;
-    find.pos[0] = start[0];
-    find.pos[1] = start[1];
-    find.pos[2] = start[2];
+    find.pos = start;
     find.ent = nullptr;
 
     CMapClass_EnumChildren(doc->m_pWorld, find_ent_by_pos, &find, nullptr);
@@ -51,7 +57,7 @@ static void move_brush(int *start, int *end) {
         CMapDoc_SetModifiedFlag(doc, true);
         CMapDoc_UpdateAllViews(doc, MAPVIEW_UPDATE_OBJECTS, nullptr);
     } else {
-        log_msg("[hook] failed to find ent at %d %d %d\n", find.pos[0], find.pos[1], find.pos[2]);
+        log_msg("[hook] failed to find ent at %d %d %d\n", find.pos.x, find.pos.y, find.pos.z);
     }
 }
 
@@ -101,20 +107,10 @@ int follow_console_log() {
                         line[len-1] = '\0';
                     }
 
-                    int x1, y1, z1, x2, y2, z2;
+                    Int3 start;
+                    Int3 end;
                     if (sscanf(line, "[fatalis-movebrushes] move %d %d %d to %d %d %d",
-                           &x1, &y1, &z1, &x2, &y2, &z2) == 6) {
-
-                        int start[3];
-                        start[0] = x1;
-                        start[1] = y1;
-                        start[2] = z1;
-
-                        int end[3];
-                        end[0] = x2;
-                        end[1] = y2;
-                        end[2] = z2;
-
+                           &start.x, &start.y, &start.z, &end.x, &end.y, &end.z) == 6) {
                         move_brush(start, end);
                     }
 

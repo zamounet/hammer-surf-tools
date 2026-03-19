@@ -7,9 +7,9 @@
 
 #define CREATE_BUILD_PLANE_POINTS 0x0001
 
-static CMapFace *make_trigger_face(CMapSolid *solid, Vec3 *points, int nPoints) {
+static CMapFace *make_trigger_face(CMapSolid *solid, Vec3 *points, int n_points) {
     CMapFace *face = CSolidFaces_MakeFace(&solid->Faces);
-    CMapFace_CreateFace(face, points, nPoints, false);
+    CMapFace_CreateFace(face, points, n_points, false);
     CMapFace_SetTexture(face, "tools/toolstrigger", 0);
     face->atom.r = 255; // TODO: temporary fix. find what normally does this
     face->atom.g = 255;
@@ -28,37 +28,32 @@ CMapEntity *create_trigger(CMapFace *pTargetFace) {
     CMapDoc *doc = GetActiveMapDoc();
     ASSERT(doc);
 
-    const int nPoints = (int)pTargetFace->Points.length;
+    const int n_points = (int)pTargetFace->Points.length;
 
     CMapSolid *solid = new_CMapSolid();
 
     // bottom face (input face's location)
-    Vec3 orig[nPoints];
-    for (auto i = 0; i < nPoints; i++) {
+    Vec3 orig[n_points];
+    for (auto i = 0; i < n_points; i++) {
         orig[i] = pTargetFace->Points.items[i].point;
     }
-    make_trigger_face(solid, orig, -nPoints);
+    make_trigger_face(solid, orig, -n_points);
 
     // top (extended along input face's normal)
-    Vec3 vNormal = pTargetFace->plane.normal;
-    Vec3Normalize(&vNormal);
+    ASSERT(vec3Length(pTargetFace->plane.normal) != 0.0f);
+    Vec3 normal = vec3Normalize(pTargetFace->plane.normal);
+    Vec3 offset = vec3Multiply(normal, TRIGGER_HEIGHT);
 
-    Vec3 vOffset;
-    Vec3Mul(vNormal, TRIGGER_HEIGHT, &vOffset);
-
-    Vec3 top[nPoints];
-    for (int i = 0; i < nPoints; i++) {
-        top[i] = pTargetFace->Points.items[i].point;
-        top[i].x += vOffset.x;
-        top[i].y += vOffset.y;
-        top[i].z += vOffset.z;
+    Vec3 top[n_points];
+    for (int i = 0; i < n_points; i++) {
+        top[i] = vec3Add(pTargetFace->Points.items[i].point, offset);
     }
-    make_trigger_face(solid, top, nPoints);
+    make_trigger_face(solid, top, n_points);
 
 
     // sides
-    for (auto i = 0; i < nPoints; i++) {
-        auto next = (i + 1) % nPoints;
+    for (auto i = 0; i < n_points; i++) {
+        auto next = (i + 1) % n_points;
 
         Vec3 quad[4] = {
             pTargetFace->Points.items[i].point,

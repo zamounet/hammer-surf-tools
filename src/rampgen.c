@@ -52,11 +52,9 @@ static void vertical_plane_from_bbox(const BoundingBox *bbox, RampOrientation *o
         0.0f
     }};
 
-    if (!Vec3Normalize(&normal)) {
-        normal = (Vec3){{1.0f, 0.0f, 0.0f}};
-    }
-
-    float d = normal.x*p0.x + normal.y*p0.y;
+    ASSERT(vec3Length(normal) != 0.0f);
+    normal = vec3Normalize(normal);
+    float d = vec3DotProduct(normal, p0);
 
     out_plane->normal = normal;
     out_plane->dist = d;
@@ -191,7 +189,7 @@ static void resize_start_seg(CMapDoc * doc, CMapSolid *solid, RampOrientation *o
     float factor = segment_width / orig_size.v[ori->axis];
     Vec3 ref;
     box_bottom_corner(&solid->base.m_Render2DBox, ori->pivot_opposite, &ref);
-    Vec3 scale = {{1.0f, 1.0f, 1.0f}};
+    Vec3 scale = VEC3_ONE;
     scale.v[ori->axis] = factor;
 
     TransScale(solid, &ref, &scale);
@@ -203,7 +201,7 @@ static void move_seg(CMapDoc *doc, CMapSolid *prev_seg, CMapSolid *seg, RampOrie
     Vec3 size;
     BBoxSize(&prev_seg->base.m_Render2DBox, &size); // or use the selected solid's size
 
-    Vec3 delta = {{0.0f, 0.0f, 0.0f}};
+    Vec3 delta = VEC3_ZERO;
     delta.v[ori->axis] = ori->direction == DIR_PLUS ? size.v[ori->axis] : -size.v[ori->axis];
     TransMove(seg, &delta);
 }
@@ -220,7 +218,7 @@ static void rotate_seg(CMapDoc *doc, CMapSolid *seg, CMapSolid *ref_ent, Angle a
     debug_point(1, &ref, 0x00ff00);
 #endif
 
-    Euler angles = {{0.0f, 0.0f, 0.0f}};
+    Euler angles = EULER_ZERO;
     angles.v[angle] = degrees;
     TransRotate(seg, &angles, &ref);
 }
@@ -231,27 +229,23 @@ static void rotate_all_segs(CMapDoc *doc, CMapSolid **segments, Angle rotate_ang
     Vec3 ref;
     BBoxTrueCenter((CMapClass **)segments, &ref);
     for (auto i = 0; i < arrlen(segments); i++) {
-        Euler angles = {{0.0f, 0.0f, 0.0f}};
+        Euler angles = EULER_ZERO;
         angles.v[rotate_angle] = degrees;
         TransRotate(segments[i], &angles, &ref);
     }
 }
 
-static void move_back(CMapDoc *doc, Vec3 *orig_pos, CMapSolid *seg, CMapSolid **segments, RampOrientation *ori) {
+static void move_back(CMapDoc *doc, Vec3 orig_pos, CMapSolid *seg, CMapSolid **segments, RampOrientation *ori) {
     debug("move_back: flip");
-    Vec3 ref = {{0.0f, 0.0f, 0.0f}};
-    Vec3 scale = {{1.0f, 1.0f, 1.0f}};
+    Vec3 ref = VEC3_ZERO;
+    Vec3 scale = VEC3_ONE;
     scale.v[ori->axis] = -1.0f;
     for (auto i = 0; i < arrlen(segments); i++) {;
         TransScale(segments[i], &ref, &scale);
     }
 
     debug("move_back: move");
-    Vec3 moved = {{
-        orig_pos->x - seg->base.point.m_Origin.x,
-        orig_pos->y - seg->base.point.m_Origin.y,
-        orig_pos->z - seg->base.point.m_Origin.z,
-    }};
+    Vec3 moved = vec3Subtract(orig_pos, seg->base.point.m_Origin);
 
     for (auto i = 0; i < arrlen(segments); i++) {;
         TransMove(segments[i], &moved);
@@ -296,7 +290,7 @@ static CMapSolid *cut_convex_seg(CMapDoc *doc, CMapSolid *solid, RampOrientation
 #endif
     rotate_seg(doc, cut, cut, rotate_angle, degrees, pivot, top);
 
-    Vec3 scale = {{1.0f, 1.0f, 1.0f}};
+    Vec3 scale = VEC3_ONE;
     scale.v[ori->axis] = -1.0f;
     Vec3 center;
     BBoxCenter(&cut->base.m_Render2DBox, &center);
@@ -388,7 +382,7 @@ void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generati
     }
 
     Vec3 orig_pos = solid->base.point.m_Origin; // copy
-    
+
     CMapSolid **segments = nullptr;
     arrput(segments, solid);
 
@@ -417,7 +411,7 @@ void rampgen(RampGenCmd *cmd, RampOrientation *ori, bool initial, bool *generati
 
         // flip and move back to initial segment pos
         if (seg == wish_segments) {
-            move_back(doc, &orig_pos, new_seg, segments, ori);
+            move_back(doc, orig_pos, new_seg, segments, ori);
         }
     }
 
