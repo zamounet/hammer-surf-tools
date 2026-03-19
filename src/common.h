@@ -110,80 +110,81 @@ typedef enum {
 typedef void (*Dtor_t)(void *this_, DeleteFlags flags);
 
 
-typedef char *(*CMapAtom_GetType_t)(void *this_);
-typedef void (*CMapPoint_SetOrigin_t)(void *this_, Vec3 *pos);
-typedef CMapClass *(*CMapClass_Copy_t)(void *this_, bool bUpdateDependencies);
-typedef CMapClass *(*CMapClass_CopyFrom_t)(void *this_, CMapClass *from, bool bUpdateDependencies);
-typedef void (*CMapClass_CopyChildrenFrom_t)(void *this_, void *from, bool bUpdateDependencies);
-typedef void (*CMapClass_CalcBounds_t)(void *this_, bool bFullUpdate);
-typedef void (*CMapClass_AddChild_t)(void *this_, CMapClass *pChild);
-typedef CMapClass *(*CMapAtom_GetParent_t)(void *this_);
-typedef void (*CMapAtom_SetRenderColor_t)(void *this_, uint32_t color);
-typedef void (*CMapAtom_SetRenderColor2_t)(void *this_, uint8_t r, uint8_t g, uint8_t b);
-typedef bool (*CMapClass_UpdateObjectColor_t)(void *this_);
+typedef char      *(*CMapAtom_GetType_t)           (void *this_);
+typedef void       (*CMapPoint_SetOrigin_t)        (void *this_, Vec3 *pos);
+typedef CMapClass *(*CMapClass_Copy_t)             (void *this_, bool bUpdateDependencies);
+typedef CMapClass *(*CMapClass_CopyFrom_t)         (void *this_, CMapClass *from, bool bUpdateDependencies);
+typedef void       (*CMapClass_CopyChildrenFrom_t) (void *this_, void *from, bool bUpdateDependencies);
+typedef void       (*CMapClass_CalcBounds_t)       (void *this_, bool bFullUpdate);
+typedef void       (*CMapClass_AddChild_t)         (void *this_, CMapClass *pChild);
+typedef CMapClass *(*CMapAtom_GetParent_t)         (void *this_);
+typedef void       (*CMapAtom_SetRenderColor_t)    (void *this_, uint32_t color);
+typedef void       (*CMapAtom_SetRenderColor2_t)   (void *this_, uint8_t r, uint8_t g, uint8_t b);
+typedef bool       (*CMapClass_UpdateObjectColor_t)(void *this_);
 
 typedef struct {
-    // CMapAtom
-    CMapAtom_GetType_t GetType; // 0
-    void *CMapClass_01;
-    void *CMapClass_02;
-    void *CMapClass_03;
-    CMapAtom_SetRenderColor_t SetRenderColor;   // 4
-    CMapAtom_SetRenderColor2_t SetRenderColor2; // 5
-    void *CMapClass_06;
-    void *SetParent; // 7
-    CMapAtom_GetParent_t GetParent; // 8
-    void *CMapClass_09;
-    void *CMapClass_10;
-    void *CMapClass_11;
-    void *CMapClass_12;
-    void *CMapClass_13;
-    void *CMapClass_14;
-    void *CMapClass_15;
-    void *CMapClass_16;
-    void *DoTransform; // 17
+    // ==== CMapAtom ====
+    CMapAtom_GetType_t            GetType;                    //  0
+    void                         *CMapClass_01;               //  1
+    void                         *CMapClass_02;               //  2
+    void                         *CMapClass_03;               //  3
+    CMapAtom_SetRenderColor_t     SetRenderColor;             //  4
+    CMapAtom_SetRenderColor2_t    SetRenderColor2;            //  5
+    void                         *CMapClass_06;               //  6
+    void                         *SetParent;                  //  7
+    CMapAtom_GetParent_t          GetParent;                  //  8
+    void                         *CMapClass_09;               //  9
+    void                         *CMapClass_10;               // 10
+    void                         *CMapClass_11;               // 11
+    void                         *CMapClass_12;               // 12
+    void                         *CMapClass_13;               // 13
+    void                         *CMapClass_14;               // 14
+    void                         *CMapClass_15;               // 15
+    void                         *CMapClass_16;               // 16
+    void                         *DoTransform;                // 17
 
-    // CMapPoint
-    CMapPoint_SetOrigin_t SetOrigin;   // 18 (GetOrigin is compiled away)
+    // ==== CMapPoint ====
+    CMapPoint_SetOrigin_t         SetOrigin;                  // 18
 
-    // CMapClass
-    Dtor_t Dtor;       // 19
-    void *CMapClass_20;
-    void *AddVisGroup; // 21
-    CMapClass_UpdateObjectColor_t UpdateObjectColor; // 22
-    CMapClass_AddChild_t AddChild;     // 23
-    void *CMapClass_CopyChildrenFrom;  // 24
-    void *RemoveAllChildren; // 25
-    void *RemoveChild; // 26
-    void *UpdateChild; // 27
-    void *CMapClass_GetParent; // 28
-    void *CMapclass_SetParent; // 29
-    void *ReplaceTargetName; // 30
-    void *OnAddToWorld; // 31
-    void *OnClone; // 32
-    void *OnPreClone; // 33
-    void *OnPrePaste; // 34
-    void *OnPaste; // 35
-    void *CMapClass_36;
-    void *CMapClass_37;
-    void *CMapClass_38;
-    void *CMapClass_39;
-    void *CMapClass_40;
-    void *CMapClass_41;
-    CMapClass_CalcBounds_t CalcBounds; // 42
-    void *SetLogicalPosition; // 43
-    void *GetLogicalPosition; // 44
-    void *CMapClass_45;
-    void *CMapClass_46;
-    void *CMapClass_47;
-    void *IsMapClass; // 48
-    void *CMapClass_49;
-    CMapClass_Copy_t     Copy;         // 50
-    CMapClass_CopyFrom_t *CopyFrom;    // 51
+    // ==== CMapClass ====
+    Dtor_t                        Dtor;                       // 19
+    void                         *CMapClass_20;               // 20
+    void                         *AddVisGroup;                // 21
+    CMapClass_UpdateObjectColor_t UpdateObjectColor;          // 22
+    CMapClass_AddChild_t          AddChild;                   // 23
+    void                         *CMapClass_CopyChildrenFrom; // 24
+    void                         *RemoveAllChildren;          // 25
+    void                         *RemoveChild;                // 26
+    void                         *UpdateChild;                // 27
+    void                         *CMapClass_GetParent;        // 28
+    void                         *CMapclass_SetParent;        // 29
+    void                         *ReplaceTargetName;          // 30
+    void                         *OnAddToWorld;               // 31
+    void                         *OnClone;                    // 32
+    void                         *OnPreClone;                 // 33
+    void                         *OnPrePaste;                 // 34
+    void                         *OnPaste;                    // 35
+    void                         *CMapClass_36;               // 36
+    void                         *CMapClass_37;               // 37
+    void                         *CMapClass_38;               // 38
+    void                         *CMapClass_39;               // 39
+    void                         *CMapClass_40;               // 40
+    void                         *CMapClass_41;               // 41
+    CMapClass_CalcBounds_t        CalcBounds;                 // 42
+    void                         *SetLogicalPosition;         // 43
+    void                         *GetLogicalPosition;         // 44
+    void                         *CMapClass_45;               // 45
+    void                         *CMapClass_46;               // 46
+    void                         *CMapClass_47;               // 47
+    void                         *IsMapClass;                 // 48
+    void                         *CMapClass_49;               // 49
+    CMapClass_Copy_t              Copy;                       // 50
+    CMapClass_CopyFrom_t         *CopyFrom;                   // 51
+
     // ...
-    // void *IsGroup; // 60
-    // void *GetDescription // 71
-    // ... 82
+    // void *IsGroup;                // 60
+    // void *GetDescription;         // 71
+    // ...                          // 82
 } CMapClassVTable;
 
 
@@ -292,8 +293,8 @@ typedef struct HAMMER_ALIGN CMapSolid {
     CSolidFaces Faces;      // 0x1A0
     uint8_t padding[CMAPSOLID_SIZE - CMAPSOLID_OFFSET_FACES - sizeof(CSolidFaces)];
 } CMapSolid;
-static_assert(offsetof(CMapSolid, Faces) == CMAPSOLID_OFFSET_FACES, "CMapClass::Faces offset wrong");
-static_assert(sizeof(CMapSolid)          == CMAPSOLID_SIZE,         "CMapClass size wrong");
+static_assert(offsetof(CMapSolid, Faces) == CMAPSOLID_OFFSET_FACES, "CMapSolid::Faces offset wrong");
+static_assert(sizeof(CMapSolid)          == CMAPSOLID_SIZE,         "CMapSolid size wrong");
 
 
 // changed in hammer++, used to be just a vec3
