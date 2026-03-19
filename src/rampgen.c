@@ -205,7 +205,7 @@ static void move_seg(CMapDoc *doc, CMapSolid *prev_seg, CMapSolid *seg, RampOrie
 
     Vec3 delta = VEC3_ZERO;
     delta.v[ori->axis] = ori->direction == DIR_PLUS ? size.v[ori->axis] : -size.v[ori->axis];
-    delta.v[ori->axis] += DIR_PLUS ? ori->segment_gap : -ori->segment_gap;
+    delta.v[ori->axis] += ori->direction == DIR_PLUS ? ori->segment_gap : -ori->segment_gap;
 
     TransMove(seg, &delta);
 }
