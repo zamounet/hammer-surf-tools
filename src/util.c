@@ -13,16 +13,8 @@ HINSTANCE GetHInstance() {
 }
 
 MAPCLASSTYPE MAPCLASS_TYPE(const char* type_name) {
-    static MCMSTRUCTVector *s_Classes = nullptr;
-    if (!s_Classes) {
-        uint8_t *instr = (uint8_t*)s_Classes_ptr;
-        int32_t rel = *(int32_t*)(instr + 3);
-
-        s_Classes = (MCMSTRUCTVector*)(instr + 7 + rel);
-    }
-
-    for (int i = 0; i < s_Classes->length; i++) {
-        MCMSTRUCT e = s_Classes->items[i];
+    for (int i = 0; i < S_Classes->length; i++) {
+        MCMSTRUCT e = S_Classes->items[i];
         if (!strcmp(e.Type, type_name)) {
             return e.Type;
         }

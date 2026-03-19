@@ -784,7 +784,7 @@ static Pattern_t g_patterns[] = {
 #endif
 #ifdef USING_S_CLASSES
     {
-        // 48 8D 0D ? ? ? ? 4C 89 44 24 ? 4C 8D 44 24 ? E8
+        // 48 8D 0D ?? ?? ?? ?? 4C 89 44 24 ?? 4C 8D 44 24 ?? E8
         // lea     rcx, qword_180CAB528
         "s_Classes",
         (const uint8_t[]) {
@@ -797,12 +797,15 @@ static Pattern_t g_patterns[] = {
             0xE8
         },
         "xxx????xxxx?xxxx?x",
-        (void **)&s_Classes_ptr,
+        (void **)&S_Classes,
+        nullptr,
+        0,
+        PATTERN_REL,
     },
 #endif
 #ifdef USING_CMAPCLASS_GETVISGROUPCOUNT
     {
-        // 8B 81 ? ? ? ? C3 ? ? ? ? ? ? ? ? ? 40 53 48 83 EC ? 48 8B D9
+        // 8B 81 ?? ?? ?? ?? C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? 40 53 48 83 EC ? 48 8B D9
         "CMapClass::GetVisGroupCount",
         (const uint8_t[]) {
             0x8B, 0x81, 0x00, 0x00, 0x00, 0x00, 0xC3, 0x00, 0x00, 0x00,
@@ -815,7 +818,7 @@ static Pattern_t g_patterns[] = {
 #endif
 #ifdef USING_CMAPCLASS_GETVISGROUP
     {
-        // 48 8B 81 ? ? ? ? 8B D2 ? ? ? ? C3 ? ? 8B 81 ? ? ? ? C3 ? ? ? ? ? ? ? ? ? 40 53
+        // 48 8B 81 ?? ?? ?? ?? 8B D2 ?? ?? ?? ?? C3 ?? ?? 8B 81 ?? ?? ?? ?? C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? 40 53
         "CMapClass::GetVisGroup",
         (const uint8_t[]) {
             0x48, 0x8B, 0x81, 0x00, 0x00, 0x00, 0x00, 0x8B, 0xD2, 0x00,
@@ -829,7 +832,7 @@ static Pattern_t g_patterns[] = {
 #endif
 #ifdef USING_CVISGROUP_ISAUTOVISGROUP
     {
-        // 0F B6 41 ? C3 ? ? ? ? ? ? ? ? ? ? ? 0F B6 05
+        // 0F B6 41 ?? C3 ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 0F B6 05
         "CVisGroup::IsAutoVisGroup",
         (const uint8_t[]) {
             0x0F, 0xB6, 0x41, 0x00, 0xC3, 0x00, 0x00, 0x00,

@@ -76,7 +76,7 @@ CVisGroup_IsAutoVisGroup_t CVisGroup_IsAutoVisGroup;
 #endif
 
 #ifdef USING_S_CLASSES
-void *s_Classes_ptr;
+MCMSTRUCTVector *S_Classes;
 #endif
 
 CMapClassMethods_t  CMapClassMethods;
