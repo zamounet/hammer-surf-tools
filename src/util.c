@@ -12,6 +12,25 @@ HINSTANCE GetHInstance() {
     return hInstance;
 }
 
+MAPCLASSTYPE MAPCLASS_TYPE(const char* type_name) {
+    static MCMSTRUCTVector *s_Classes = nullptr;
+    if (!s_Classes) {
+        uint8_t *instr = (uint8_t*)s_Classes_ptr;
+        int32_t rel = *(int32_t*)(instr + 3);
+
+        s_Classes = (MCMSTRUCTVector*)(instr + 7 + rel);
+    }
+
+    for (int i = 0; i < s_Classes->length; i++) {
+        MCMSTRUCT e = s_Classes->items[i];
+        if (!strcmp(e.Type, type_name)) {
+            return e.Type;
+        }
+    }
+    
+    return NULL;
+}
+
 int AfxMessageBoxF(UINT nType, const char* fmt, ...) {
     const size_t BUFFER_SIZE = 512;
     char buffer[BUFFER_SIZE];
@@ -32,7 +51,7 @@ CMapEntity *new_CMapEntity() {
 
 CMapSolid *new_CMapSolid() {
     CMapSolid *ent = ValveAlloc(CMAPSOLID_SIZE);
-    CMapSolid_CMapSolid(ent, nullptr);
+    CMapSolidMethods.CMapSolid(ent, nullptr);
     return ent;
 }
 
@@ -64,7 +83,7 @@ CMapSolid *CMapClass_AsSolid(CMapClass *ent) {
     if (!ent) {
         return nullptr;
     }
-    char *name = ent->vtable->GetType(ent);
+    const char *name = ent->vtable->GetType(ent);
     return !strcmp(name, "CMapSolid") ? (CMapSolid *)ent : nullptr;
 }
 

@@ -33,6 +33,8 @@ void log_msg(const char *fmt, ...);
 #define IDR_FORGEMAPTYPE            129
 #define IDD_FACEEDIT                194
 
+typedef const char * MAPCLASSTYPE;
+
 // typedefs
 typedef struct CMapClass CMapClass;
 typedef struct CMapFace CMapFace;
@@ -140,7 +142,7 @@ typedef void HitInfo_t;
 typedef void CBaseTool;
 
 typedef bool         (*CMapClass_BoolNoArgs_t)        (void *this_);
-typedef char        *(*CMapAtom_GetType_t)            (void *this_);
+typedef MAPCLASSTYPE (*CMapAtom_GetType_t)            (void *this_);
 typedef void         (*CMapAtom_SetRenderColor_t)     (void *this_, uint32_t color);
 typedef void         (*CMapAtom_SetRenderColor2_t)    (void *this_, uint8_t r, uint8_t g, uint8_t b);
 typedef void         (*CMapAtom_SetParent_t)          (void *this_, CMapAtom *parent);
@@ -157,7 +159,7 @@ typedef void         (*CMapClass_RemoveAllChildren_t) (void *this_);
 typedef void         (*CMapClass_RemoveChild_t)       (void *this_, CMapClass *child, bool bUpdateBounds);
 typedef void         (*CMapClass_UpdateChild_t)       (void *this_, CMapClass *child);
 typedef CMapClass   *(*CMapClass_GetParent_t)         (void *this_);
-typedef void         (*CMapClass_SetParent_t)         (void *this_, CMapAtom *parent);
+typedef void         (*CMapClass_SetParent_t)         (void *this_, CMapClass *parent);
 typedef void         (*CMapClass_ReplaceTargetName_t) (void *this_, const char *oldName, const char *newName);
 typedef void         (*CMapClass_OnAddToWorld_t)      (void *this_, CMapWorld *world);
 typedef void         (*CMapClass_OnClone_t)           (void *this_, CMapClass *clone, CMapWorld *world, const void *origList, void *newList);
@@ -173,7 +175,7 @@ typedef void         (*CMapClass_SetLogicalPosition_t)(void *this_, const Vec2 *
 typedef const Vec2  *(*CMapClass_GetLogicalPosition_t)(void *this_);
 typedef void         (*CMapClass_GetRenderLogicalBox_t)(void *this_, Vec2 *mins, Vec2 *maxs);
 typedef CMapClass   *(*CMapClass_PrepareSelection_t)  (void *this_, int mode);
-typedef bool         (*CMapClass_IsMapClass_t)        (void *this_, int type);
+typedef bool         (*CMapClass_IsMapClass_t)        (void *this_, MAPCLASSTYPE type);
 typedef bool         (*CMapClass_IsWorld_t)           (void *this_);
 typedef CMapClass   *(*CMapClass_Copy_t)              (void *this_, bool bUpdateDependencies);
 typedef CMapClass   *(*CMapClass_CopyFrom_t)          (void *this_, CMapClass *from, bool bUpdateDependencies);
@@ -435,5 +437,12 @@ typedef struct HAMMER_ALIGN {
     CHistoryTrack *CurTrack;
     HistoryTrackRefVector Tracks;
 } CHistory; // incomplete sized type
+
+typedef struct MCMSTRUCT {
+    const char* Type;      
+    void* (*pfnNew)(void);
+} MCMSTRUCT;
+
+DEFINE_VECTOR(MCMSTRUCT, MCMSTRUCTVector);
 
 #endif // COMMON_H

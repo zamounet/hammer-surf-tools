@@ -91,7 +91,7 @@ static Pattern_t g_patterns[] = {
             0x4D, 0x8B, 0xF0,
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapClass_EnumChildren
+        (void **)&CMapClassMethods.EnumChildren
     },
 #endif
 #ifdef USING_CMAPDOC_UPDATEALLVIEWS
@@ -105,7 +105,7 @@ static Pattern_t g_patterns[] = {
             0x8B, 0xFA
         },
         "xxxxxxxxxxxxxxx",
-        (void **)&CMapDoc_UpdateAllViews
+        (void **)&CMapDocMethods.UpdateAllViews
     },
 #endif
 #ifdef USING_CRENDER_DRAWTEXT
@@ -137,7 +137,7 @@ static Pattern_t g_patterns[] = {
             0x74, 0x6B
         },
         "xxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapDoc_SetModifiedFlag
+        (void **)&CMapDocMethods.SetModifiedFlag
     },
 #endif
 #ifdef USING_CMAPDOC_DELETEOBJECT
@@ -156,7 +156,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8B, 0xC8
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapDoc_DeleteObject
+        (void **)&CMapDocMethods.DeleteObject
     },
 #endif
 #ifdef USING_CMAPFACE_SETTEXTURE
@@ -171,7 +171,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8B, 0xF9
         },
         "xxxxxxxxxxxxxxxxx",
-        (void **)&CMapFace_SetTexture
+        (void **)&CMapFaceMethods.SetTexture
     },
 #endif
 #ifdef USING_SCRIPTDATAPTR
@@ -293,7 +293,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x81, 0xEC, 0x90, 0x03, 0x00, 0x00
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapSolid_ClipByFace,
+        (void **)&CMapSolidMethods.ClipByFace,
     },
 #endif
 #ifdef USING_CMAPSOLID_SPLIT
@@ -313,7 +313,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x81, 0xEC, 0xB0, 0x03, 0x00, 0x00
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapSolid_Split
+        (void **)&CMapSolidMethods.Split
     },
 #endif
 #ifdef USING_CMAPSOLID_CMAPSOLID
@@ -333,7 +333,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8D, 0x05
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxx????xxxx",
-        (void **)&CMapSolid_CMapSolid,
+        (void **)&CMapSolidMethods.CMapSolid,
     },
 #endif
 #ifdef USING_CMAPSOLID_ADDPLANE
@@ -351,7 +351,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8B, 0xDA
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapSolid_AddPlane,
+        (void **)&CMapSolidMethods.AddPlane,
     },
 #endif
 #ifdef USING_CSOLIDFACES_MAKEFACE
@@ -394,7 +394,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x85, 0xD2
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapFace_CopyFrom,
+        (void **)&CMapFaceMethods.CopyFrom,
     },
 #endif
 #ifdef USING_CMAPSOLID_CREATEFROMPLANES
@@ -416,7 +416,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8D, 0xA8, 0xA8, 0xFE, 0xFF, 0xFF
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapSolid_CreateFromPlanes,
+        (void **)&CMapSolidMethods.CreateFromPlanes,
     },
 #endif
 #ifdef USING_CMAPFACE_CREATEFACE
@@ -434,7 +434,7 @@ static Pattern_t g_patterns[] = {
             0x48, 0x8D, 0xB9, 0xC8, 0x01, 0x00, 0x00
         },
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapFace_CreateFace,
+        (void **)&CMapFaceMethods.CreateFace,
     },
 #endif
 #ifdef USING_CMAPFACE_INITIALIZETEXTUREAXES
@@ -450,7 +450,7 @@ static Pattern_t g_patterns[] = {
             0x0F, 0x57, 0xF6
         },
         "xxxxxxxxxxxxxxxxxxxxxxx",
-        (void **)&CMapFace_InitializeTextureAxes,
+        (void **)&CMapFaceMethods.InitializeTextureAxes,
     },
 #endif
 #ifdef USING_CMAPFACE_GETORIENTATION
@@ -463,7 +463,7 @@ static Pattern_t g_patterns[] = {
             0x0F, 0x29, 0x74, 0x24, 0x40
         },
         "xxxxxxxxxxxxxxxxx",
-        (void **)&CMapFace_GetOrientation
+        (void **)&CMapFaceMethods.GetOrientation
     },
 #endif
 #ifdef USING_CHISTORY_KEEPNEW
@@ -780,6 +780,24 @@ static Pattern_t g_patterns[] = {
         "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         (void **)&orig_AfxWndProc,
         hook_AfxWndProc
+    },
+#endif
+#ifdef USING_S_CLASSES
+    {
+        // 48 8D 0D ? ? ? ? 4C 89 44 24 ? 4C 8D 44 24 ? E8
+        // lea     rcx, qword_180CAB528
+        "s_Classes",
+        (const uint8_t[]) {
+            0x48, 0x8D, 0x0D,
+            0x00, 0x00, 0x00, 0x00,
+            0x4C, 0x89, 0x44, 0x24,
+            0x00,
+            0x4C, 0x8D, 0x44, 0x24,
+            0x00,
+            0xE8
+        },
+        "xxx????xxxx?xxxx?x",
+        (void **)&s_Classes_ptr,
     },
 #endif
 };
