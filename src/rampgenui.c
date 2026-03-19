@@ -144,8 +144,7 @@ void do_ramp_generator() {
     }
 
     // TODO: do in WM_INITDIALOG?
-    Vec3 orig_size;
-    BBoxSize(&ramp->base.m_Render2DBox, &orig_size);
+    Vec3 orig_size = BBoxSize(&ramp->base.m_Render2DBox);
     float width = orig_size.v[orientation.axis];
     cmd.segment_width = width;
 

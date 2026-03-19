@@ -27,7 +27,7 @@ static void box_bottom_corner(const BoundingBox *bbox, BoxCorner corner, Vec3 *o
     }
 }
 
-static void vertical_plane_from_bbox(const BoundingBox *bbox, RampOrientation *ori, Plane *out_plane) {
+static inline Plane vertical_plane_from_bbox(const BoundingBox *bbox, RampOrientation *ori) {
     BoxCorner first  = ori->flip_edge ? ori->pivot      : ori->pivot_end;
     BoxCorner second = ori->flip_edge ? ori->pivot_end  : ori->pivot;
 
@@ -56,11 +56,14 @@ static void vertical_plane_from_bbox(const BoundingBox *bbox, RampOrientation *o
     normal = vec3Normalize(normal);
     float d = vec3DotProduct(normal, p0);
 
-    out_plane->normal = normal;
-    out_plane->dist = d;
-    out_plane->points[0] = p0;
-    out_plane->points[1] = p1;
-    out_plane->points[2] = p2;
+    Plane plane;
+    plane.normal = normal;
+    plane.dist = d;
+    plane.points[0] = p0;
+    plane.points[1] = p1;
+    plane.points[2] = p2;
+
+    return plane;
 }
 
 static Axis orientation_to_axis(FaceOrientation ori) {
@@ -182,8 +185,7 @@ bool ramp_orientation(RampGenCmd *cmd, RampOrientation *out_orientation) {
 static void resize_start_seg(CMapDoc * doc, CMapSolid *solid, RampOrientation *ori, float segment_width) {
     debug("scale seg");
 
-    Vec3 orig_size;
-    BBoxSize(&solid->base.m_Render2DBox, &orig_size);
+    Vec3 orig_size = BBoxSize(&solid->base.m_Render2DBox);
 
     // scale the start seg
     float factor = segment_width / orig_size.v[ori->axis];
@@ -198,8 +200,7 @@ static void resize_start_seg(CMapDoc * doc, CMapSolid *solid, RampOrientation *o
 static void move_seg(CMapDoc *doc, CMapSolid *prev_seg, CMapSolid *seg, RampOrientation *ori) {
     debug("move seg");
 
-    Vec3 size;
-    BBoxSize(&prev_seg->base.m_Render2DBox, &size); // or use the selected solid's size
+    Vec3 size = BBoxSize(&prev_seg->base.m_Render2DBox); // or use the selected solid's size
 
     Vec3 delta = VEC3_ZERO;
     delta.v[ori->axis] = ori->direction == DIR_PLUS ? size.v[ori->axis] : -size.v[ori->axis];
@@ -226,8 +227,7 @@ static void rotate_seg(CMapDoc *doc, CMapSolid *seg, CMapSolid *ref_ent, Angle a
 static void rotate_all_segs(CMapDoc *doc, CMapSolid **segments, Angle rotate_angle, float degrees) {
     debug("rotate all segs");
 
-    Vec3 ref;
-    BBoxTrueCenter((CMapClass **)segments, &ref);
+    Vec3 ref = BBoxTrueCenter((CMapClass **)segments);
     for (auto i = 0; i < arrlen(segments); i++) {
         Euler angles = EULER_ZERO;
         angles.v[rotate_angle] = degrees;
@@ -253,8 +253,7 @@ static void move_back(CMapDoc *doc, Vec3 orig_pos, CMapSolid *seg, CMapSolid **s
 }
 
 static CMapSolid *cut_convex_seg(CMapDoc *doc, CMapSolid *solid, RampOrientation *ori) {
-    Plane plane;
-    vertical_plane_from_bbox(&solid->base.m_Render2DBox, ori, &plane);
+    Plane plane = vertical_plane_from_bbox(&solid->base.m_Render2DBox, ori);
 #ifdef CONVEX_DEBUG
     debug_point(502, &plane.points[0], 0x00ffff);
     debug_point(502, &plane.points[1], 0x00ffff);
@@ -292,8 +291,7 @@ static CMapSolid *cut_convex_seg(CMapDoc *doc, CMapSolid *solid, RampOrientation
 
     Vec3 scale = VEC3_ONE;
     scale.v[ori->axis] = -1.0f;
-    Vec3 center;
-    BBoxCenter(&cut->base.m_Render2DBox, &center);
+    Vec3 center = BBoxCenter(&cut->base.m_Render2DBox);
 #ifdef CONVEX_DEBUG
     debug("convex: flip");
 #endif

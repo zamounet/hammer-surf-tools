@@ -4,20 +4,23 @@
 void SetHInstance(HINSTANCE hInst);
 HINSTANCE GetHInstance();
 
-static inline void BBoxCenter(const BoundingBox *bbox, Vec3 *outCenter) {
-    outCenter->x = (bbox->mins.x + bbox->maxs.x) * 0.5f;
-    outCenter->y = (bbox->mins.y + bbox->maxs.y) * 0.5f;
-    outCenter->z = (bbox->mins.z + bbox->maxs.z) * 0.5f;
+static inline Vec3 BBoxCenter(const BoundingBox *bbox) {
+    Vec3 center;
+    center.x = (bbox->mins.x + bbox->maxs.x) * 0.5f;
+    center.y = (bbox->mins.y + bbox->maxs.y) * 0.5f;
+    center.z = (bbox->mins.z + bbox->maxs.z) * 0.5f;
+    return center;
 }
 
-static inline void BBoxSize(const BoundingBox *bbox, Vec3 *out) {
-    out->x = bbox->maxs.x - bbox->mins.x;
-    out->y = bbox->maxs.y - bbox->mins.y;
-    out->z = bbox->maxs.z - bbox->mins.z;
+static inline Vec3 BBoxSize(const BoundingBox *bbox) {
+    Vec3 size;
+    size.x = bbox->maxs.x - bbox->mins.x;
+    size.y = bbox->maxs.y - bbox->mins.y;
+    size.z = bbox->maxs.z - bbox->mins.z;
+    return size;
 }
 
-static inline void BBoxTrueCenter(CMapClass **ents, Vec3 *outCenter) {
-    // initialize min/max with the first entity's render box
+static inline Vec3 BBoxTrueCenter(CMapClass **ents) {
     float minX = ents[0]->m_Render2DBox.mins.x;
     float minY = ents[0]->m_Render2DBox.mins.y;
     float minZ = ents[0]->m_Render2DBox.mins.z;
@@ -25,7 +28,6 @@ static inline void BBoxTrueCenter(CMapClass **ents, Vec3 *outCenter) {
     float maxY = ents[0]->m_Render2DBox.maxs.y;
     float maxZ = ents[0]->m_Render2DBox.maxs.z;
 
-    // expand to include all remaining bounding boxes
     for (auto i = 1; i < arrlen(ents); i++) {
         if (ents[i]->m_Render2DBox.mins.x < minX) minX = ents[i]->m_Render2DBox.mins.x;
         if (ents[i]->m_Render2DBox.mins.y < minY) minY = ents[i]->m_Render2DBox.mins.y;
@@ -36,10 +38,11 @@ static inline void BBoxTrueCenter(CMapClass **ents, Vec3 *outCenter) {
         if (ents[i]->m_Render2DBox.maxs.z > maxZ) maxZ = ents[i]->m_Render2DBox.maxs.z;
     }
 
-    // compute center of the overall bounding box
-    outCenter->x = (minX + maxX) * 0.5f;
-    outCenter->y = (minY + maxY) * 0.5f;
-    outCenter->z = (minZ + maxZ) * 0.5f;
+    Vec3 center;
+    center.x = (minX + maxX) * 0.5f;
+    center.y = (minY + maxY) * 0.5f;
+    center.z = (minZ + maxZ) * 0.5f;
+    return center;
 }
 
 static inline bool NormalSurfable(Vec3 *normal) {
